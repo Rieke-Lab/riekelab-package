@@ -41,7 +41,7 @@ classdef SharedTwoPhoton < symphonyui.core.descriptions.RigDescription
                 'type', PropertyType('char', 'row', {'', 'below', 'above'}));
             uv.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'uv_led_spectrum.txt')));          
             obj.addDevice(uv);
-%             
+            
             blueRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'blue_led_gamma_ramp.txt'));
             blue = CalibratedDevice('Blue LED', Measurement.NORMALIZED, blueRamp(:, 1), blueRamp(:, 2)).bindStream(daq.getStream('ao3'));
             blue.addConfigurationSetting('ndfs', {}, ...
@@ -55,21 +55,6 @@ classdef SharedTwoPhoton < symphonyui.core.descriptions.RigDescription
                 'type', PropertyType('char', 'row', {'', 'below', 'above'}));
             blue.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'blue_led_spectrum.txt')));                       
             obj.addDevice(blue);
-            
-     
-%             greenRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'green_led_gamma_ramp.txt'));
-%             green = CalibratedDevice('Green LED', Measurement.NORMALIZED, greenRamp(:, 1), greenRamp(:, 2)).bindStream(daq.getStream('ao3'));
-%             green.addConfigurationSetting('ndfs', {}, ...
-%                 'type', PropertyType('cellstr', 'row', {'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9'}));
-%             green.addResource('ndfAttenuations', containers.Map( ...
-%                 {'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9'}, ...
-%                 {1.0162, 1.0384, 2.0162, 2.1584, 3.98, 0.24, 0.65, 1.21, 2.09}));
-%             green.addResource('fluxFactorPaths', containers.Map( ...
-%                 {'none'}, {riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'green_led_flux_factors.txt')}));
-%             green.addConfigurationSetting('lightPath', '', ...
-%                 'type', PropertyType('char', 'row', {'', 'below', 'above'}));
-%             green.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'green_led_spectrum.txt')));                       
-%             obj.addDevice(green);
             
             temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai6'));
             obj.addDevice(temperature);
