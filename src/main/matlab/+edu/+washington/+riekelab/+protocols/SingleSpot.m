@@ -11,7 +11,6 @@ classdef SingleSpot < edu.washington.riekelab.protocols.RiekeLabStageProtocol
         backgroundIntensity = 0.5       % Background light intensity (0-1)
         numberOfAverages = uint16(5)    % Number of epochs
         interpulseInterval = 0          % Duration between spots (s)
-        psth=true
     end
     
     properties (Hidden)
@@ -37,8 +36,9 @@ classdef SingleSpot < edu.washington.riekelab.protocols.RiekeLabStageProtocol
         
         function prepareRun(obj)
             prepareRun@edu.washington.riekelab.protocols.RiekeLabStageProtocol(obj);
+            
             obj.showFigure('symphonyui.builtin.figures.ResponseFigure', obj.rig.getDevice(obj.amp));
-            obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp), 'psth',obj.psth);
+            obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp));
             obj.showFigure('edu.washington.riekelab.figures.FrameTimingFigure', obj.rig.getDevice('Stage'), obj.rig.getDevice('Frame Monitor'));
         end
         
