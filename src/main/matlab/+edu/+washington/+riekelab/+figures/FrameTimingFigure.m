@@ -96,7 +96,7 @@ classdef FrameTimingFigure < symphonyui.core.FigureHandler
             refreshDuration = 1 / obj.stageDevice.getMonitorRefreshRate();
             
             if abs(refreshDuration - minDuration) / refreshDuration > 0.10 || abs(refreshDuration - maxDuration) / refreshDuration > 0.10;
-                epoch.addKeyword('badFrameTiming');
+%                 epoch.addKeyword('badFrameTiming');
                 set(obj.hardwareSweep, 'Color', 'r');
             else
                 set(obj.hardwareSweep, 'Color', 'b');
