@@ -18,7 +18,8 @@ function output = convisom(input, inputUnits, calibration, deviceSpectrum, photo
     % (calibration value) * (collecting area).
     nanoWattsPerIntensity = calibration * collectingArea;
     wattsPerIntensity = nanoWattsPerIntensity * (10^-9);
-
+   collectingArea
+   calibration
     if strcmpi(inputUnits, 'isom')
         % Get the number of watts that will be necessary to achieve desired isomerization rate.
         wattsNeeded = input / isomPerWatt;
