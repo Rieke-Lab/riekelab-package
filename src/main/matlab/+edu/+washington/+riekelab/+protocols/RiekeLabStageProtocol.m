@@ -24,7 +24,6 @@ classdef (Abstract) RiekeLabStageProtocol < edu.washington.riekelab.protocols.Ri
         
         function controllerDidStartHardware(obj)
             controllerDidStartHardware@edu.washington.riekelab.protocols.RiekeLabProtocol(obj);
-            
             if obj.waitingForHardwareToStart
                 obj.waitingForHardwareToStart = false;
                 obj.rig.getDevice('Stage').play(obj.createPresentation());
