@@ -1,15 +1,20 @@
-classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
-    % Presents segments of gaussian noise stimuli with constant contrast while randomly and periodically
-    % altering mean light level.  
+classdef LedPulseFamily < edu.washington.riekelab.protocols.RiekeLabProtocol
+    % Presents families of rectangular pulse stimuli to a specified LED and records responses from a specified 
+    % amplifier. Each family consists of a set of pulse stimuli with amplitude starting at firstLightAmplitude. With
+    % each subsequent pulse in the family, the amplitude is doubled. The family is complete when this sequence has been
+    % executed pulsesInFamily times.
+    %
+    % For example, with values firstLightAmplitude = 0.1 and pulsesInFamily = 3, the sequence of pulse stimuli amplitude
+    % values in each family would be: 0.1 then 0.2 then 0.4.
     
     properties
         led                             % Output LED
-        stimTime = 600                  % Noise duration (ms)
-        frequencyCutoff = 60            % Noise frequency cutoff for smoothing (Hz)
-        numberOfFilters = 4             % Number of filters in cascade for noise smoothing
-        Contrast = [0.125 0.25 0.5]                  % Noise contrast
-        useRandomSeed = true            % Use a random seed for each standard deviation multiple?
-        lightMean = [0.1 0.3 1 3]       % Noise and LED background mean (V or norm. [0-1] depending on LED units)
+        preTime = 10                    % Pulse leading duration (ms)
+        stimTime = 100                  % Pulse duration (ms)
+        tailTime = 400                  % Pulse trailing duration (ms)
+        firstLightAmplitude = 0.1       % First pulse amplitude (V or norm. [0-1] depending on LED units)
+        pulsesInFamily = uint16(3)      % Number of pulses in family
+        lightMean = 0                   % Pulse and LED background mean (V or norm. [0-1] depending on LED units)
         amp                             % Input amplifier
     end
     
@@ -19,7 +24,7 @@ classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
     
     properties 
         numberOfAverages = uint16(5)    % Number of families
-        interpulseInterval = 0          % Duration between noise stimuli (s)
+        interpulseInterval = 0          % Duration between pulses (s)
     end
     
     properties (Hidden)
@@ -28,7 +33,7 @@ classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
     end
     
     methods
-                
+        
         function didSetRig(obj)
             didSetRig@edu.washington.riekelab.protocols.RiekeLabProtocol(obj);
             
@@ -47,14 +52,9 @@ classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
         function p = getPreview(obj, panel)
             p = symphonyui.builtin.previews.StimuliPreview(panel, @()createPreviewStimuli(obj));
             function s = createPreviewStimuli(obj)
-                s = cell(1, obj.numberOfAverages);
+                s = cell(1, obj.pulsesInFamily);
                 for i = 1:numel(s)
-                    if ~obj.useRandomSeed
-                        seed = 0;
-                    else
-                        seed = RandStream.shuffleSeed;
-                    end
-                    s{i} = obj.createLedStimulus(i, seed);
+                    s{i} = obj.createLedStimulus(i);
                 end
             end
         end
@@ -65,74 +65,67 @@ classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
             if numel(obj.rig.getDeviceNames('Amp')) < 2
                 obj.showFigure('symphonyui.builtin.figures.ResponseFigure', obj.rig.getDevice(obj.amp));
                 obj.showFigure('symphonyui.builtin.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp), ...
-                    'groupBy', {'stdv'});
+                    'groupBy', {'lightAmplitude'});
                 obj.showFigure('symphonyui.builtin.figures.ResponseStatisticsFigure', obj.rig.getDevice(obj.amp), {@mean, @var}, ...
-                    'baselineRegion', [0 obj.stimTime], ...
-                    'measurementRegion', [0 obj.stimTime]);
+                    'baselineRegion', [0 obj.preTime], ...
+                    'measurementRegion', [obj.preTime obj.preTime+obj.stimTime]);
             else
                 obj.showFigure('edu.washington.riekelab.figures.DualResponseFigure', obj.rig.getDevice(obj.amp), obj.rig.getDevice(obj.amp2));
                 obj.showFigure('edu.washington.riekelab.figures.DualMeanResponseFigure', obj.rig.getDevice(obj.amp), obj.rig.getDevice(obj.amp2), ...
-                    'groupBy1', {'stdv'}, ...
-                    'groupBy2', {'stdv'});
+                    'groupBy1', {'lightAmplitude'}, ...
+                    'groupBy2', {'lightAmplitude'});
                 obj.showFigure('edu.washington.riekelab.figures.DualResponseStatisticsFigure', obj.rig.getDevice(obj.amp), {@mean, @var}, obj.rig.getDevice(obj.amp2), {@mean, @var}, ...
-                    'baselineRegion1', [0 obj.stimTime], ...
-                    'measurementRegion1', [0 obj.stimTime], ...
-                    'baselineRegion2', [0 obj.stimTime], ...
-                    'measurementRegion2', [0 obj.stimTime]);
+                    'baselineRegion1', [0 obj.preTime], ...
+                    'measurementRegion1', [obj.preTime obj.preTime+obj.stimTime], ...
+                    'baselineRegion2', [0 obj.preTime], ...
+                    'measurementRegion2', [obj.preTime obj.preTime+obj.stimTime]);
             end
             
             device = obj.rig.getDevice(obj.led);
-            device.background = symphonyui.core.Measurement(obj.lightMean(1), device.background.displayUnits);
+            device.background = symphonyui.core.Measurement(obj.lightMean, device.background.displayUnits);
         end
         
-        function [stim, stdv] = createLedStimulus(obj, pulseNum, seed)
-            lightMean = obj.lightMean(randi([1 length(obj.lightMean)]));
-            lightContrast = obj.Contrast(randi([1 length(obj.Contrast)]));
-            stdv = lightMean * lightContrast;
+        function [stim, lightAmplitude] = createLedStimulus(obj, pulseNum)
+            lightAmplitude = obj.amplitudeForPulseNum(pulseNum);
             
-            gen = edu.washington.riekelab.stimuli.GaussianNoiseGeneratorV2();
+            gen = symphonyui.builtin.stimuli.PulseGenerator();
             
-            gen.preTime = 0;
+            gen.preTime = obj.preTime;
             gen.stimTime = obj.stimTime;
-            gen.tailTime = 0;
-            gen.stDev = stdv;
-            gen.freqCutoff = obj.frequencyCutoff;
-            gen.numFilters = obj.numberOfFilters;
-            gen.mean = lightMean;
-            gen.seed = seed;
+            gen.tailTime = obj.tailTime;
+            gen.amplitude = lightAmplitude;
+            gen.mean = obj.lightMean;
             gen.sampleRate = obj.sampleRate;
             gen.units = obj.rig.getDevice(obj.led).background.displayUnits;
-            if strcmp(gen.units, symphonyui.core.Measurement.NORMALIZED)
-                gen.upperLimit = 1;
-                gen.lowerLimit = 0;
-            else
-                gen.upperLimit = 10.239;
-                gen.lowerLimit = -10.24;
-            end
             
             stim = gen.generate();
+        end
+        
+        function a = amplitudeForPulseNum(obj, pulseNum)
+            a = obj.firstLightAmplitude * 2^(double(pulseNum) - 1);
         end
         
         function prepareEpoch(obj, epoch)
             prepareEpoch@edu.washington.riekelab.protocols.RiekeLabProtocol(obj, epoch);
             
-            persistent seed;
-            if ~obj.useRandomSeed
-                seed = 0;
-            else
-                seed = RandStream.shuffleSeed;
-            end
+            pulseNum = mod(obj.numEpochsPrepared - 1, obj.pulsesInFamily) + 1;
+            [stim, lightAmplitude] = obj.createLedStimulus(pulseNum);
             
-            [stim, stdv] = obj.createLedStimulus(obj.numEpochsPrepared, seed);
-            
-            epoch.addParameter('stdv', stdv);
-            epoch.addParameter('seed', seed);
+            epoch.addParameter('lightAmplitude', lightAmplitude);
             epoch.addStimulus(obj.rig.getDevice(obj.led), stim);
             epoch.addResponse(obj.rig.getDevice(obj.amp));
             
             if numel(obj.rig.getDeviceNames('Amp')) >= 2
                 epoch.addResponse(obj.rig.getDevice(obj.amp2));
             end
+        end
+        
+        function updateLedPulseFigure(obj, epoch)
+            
+        end
+        
+        function updateRodFlashFigure(obj, epoch)
+            
         end
         
         function prepareInterval(obj, interval)
@@ -143,11 +136,24 @@ classdef VariableMeanNoise < edu.washington.riekelab.protocols.RiekeLabProtocol
         end
         
         function tf = shouldContinuePreparingEpochs(obj)
-            tf = obj.numEpochsPrepared < obj.numberOfAverages;
+            tf = obj.numEpochsPrepared < obj.numberOfAverages * obj.pulsesInFamily;
         end
         
         function tf = shouldContinueRun(obj)
-            tf = obj.numEpochsCompleted < obj.numberOfAverages;
+            tf = obj.numEpochsCompleted < obj.numberOfAverages * obj.pulsesInFamily;
+        end
+        
+        function [tf, msg] = isValid(obj)
+            [tf, msg] = isValid@edu.washington.riekelab.protocols.RiekeLabProtocol(obj);
+            if tf
+                units = obj.rig.getDevice(obj.led).background.displayUnits;
+                amplitude = obj.amplitudeForPulseNum(obj.pulsesInFamily);
+                if (strcmp(units, symphonyui.core.Measurement.NORMALIZED) && amplitude > 1) ...
+                        || (strcmp(units, 'V') && amplitude > 10.239)
+                    tf = false;
+                    msg = 'Last pulse amplitude too large';
+                end
+            end
         end
         
         function a = get.amp2(obj)
