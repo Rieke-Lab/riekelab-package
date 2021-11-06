@@ -9,6 +9,23 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             if ~isempty(controllers)
                 epoch.addResponse(controllers{1});
             end
+            
+            % This is for the MEA setup. Check if this is an MEA rig on the
+            % first epoch.
+            if obj.numEpochsCompleted == 0
+                % Check if this is an MEA rig.
+                mea = obj.rig.getDevices('MEA');
+                if ~isempty(mea)
+                    mea = mea{1};
+                    % Try to pull the output file name from the server.
+                    fname = mea.getFileName(30);
+                    
+                    % Persist the file name
+                    if ~isempty(fname) && ~isempty(obj.persistor)
+                        eb.setProperty('dataFileName', char(fname))
+                    end
+                end
+            end
         end
         
         function completeEpoch(obj, epoch)
