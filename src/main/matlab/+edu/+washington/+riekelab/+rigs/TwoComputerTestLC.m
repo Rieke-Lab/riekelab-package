@@ -1,15 +1,15 @@
-classdef ConfocalWithLightCrafterAbove < edu.washington.riekelab.rigs.Confocal
+classdef TwoComputerTestLC < edu.washington.riekelab.rigs.Confocal
     
     methods
         
-        function obj = ConfocalWithLightCrafterAbove()
+        function obj = TwoComputerTestLC()
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
             import edu.washington.*;
             
             daq = obj.daqController;
             
-            lightCrafter = riekelab.devices.LightCrafterDevice('micronsPerPixel', 1.3, 'host', 'RIGE');
+            lightCrafter = riekelab.devices.LightCrafterDevice('micronsPerPixel', 1.3, 'host', 'RigE');
             lightCrafter.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(lightCrafter, 15);
             lightCrafter.addConfigurationSetting('ndfs', {}, ...

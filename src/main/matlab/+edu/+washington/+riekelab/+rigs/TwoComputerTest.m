@@ -1,8 +1,8 @@
-classdef ConfocalWithMicrodisplayBelow < edu.washington.riekelab.rigs.Confocal
+classdef TwoComputerTest < edu.washington.riekelab.rigs.Confocal
     
     methods
         
-        function obj = ConfocalWithMicrodisplayBelow()
+        function obj = TwoComputerTest()
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
             import edu.washington.*;
@@ -15,9 +15,9 @@ classdef ConfocalWithMicrodisplayBelow < edu.washington.riekelab.rigs.Confocal
             ramps('medium')  = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'confocal', 'microdisplay_below_medium_gamma_ramp.txt'));
             ramps('high')    = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'confocal', 'microdisplay_below_high_gamma_ramp.txt'));
             ramps('maximum') = linspace(0, 65535, 256);
-            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1.2, 'comPort', 'COM3');
-            microdisplay.bindStream(daq.getStream('doport1'));
-            daq.getStream('doport1').setBitPosition(microdisplay, 15);
+            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1.2, 'host', 'RigE');
+%             microdisplay.bindStream(daq.getStream('doport1'));
+ %           daq.getStream('doport1').setBitPosition(microdisplay, 15);
             microdisplay.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'E1', 'E2', 'E3', 'E4', 'E12'}));
             microdisplay.addResource('ndfAttenuations', containers.Map( ...
