@@ -22,7 +22,13 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                     
                     % Persist the file name
                     if ~isempty(fname) && ~isempty(obj.persistor)
-                        eb.setProperty('dataFileName', char(fname))
+                        try
+                            eb = obj.persistor.currentEpochBlock;
+                            if ~isempty(eb)
+                                eb.setProperty('dataFileName', char(fname))
+                            end
+                        catch
+                        end
                     end
                 end
             end
