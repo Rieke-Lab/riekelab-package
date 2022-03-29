@@ -1,13 +1,18 @@
-classdef MEAWithMicrodisplay < edu.washington.riekelab.rigs.Confocal
+classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
     
     methods
         
         function obj = MEAWithMicrodisplay()
+            import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
             import edu.washington.*;
+
+            daq = HekaDaqController();
+            obj.daqController = daq;
             
-            daq = obj.daqController;
+            amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
+            obj.addDevice(amp1);
             
             ramps = containers.Map();
             ramps('minimum') = linspace(0, 65535, 256);
