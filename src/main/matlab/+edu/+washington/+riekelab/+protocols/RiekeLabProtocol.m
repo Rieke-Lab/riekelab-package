@@ -18,7 +18,11 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                 if ~isempty(mea)
                     mea = mea{1};
                     % Try to pull the output file name from the server.
-                    fname = mea.getFileName(30);
+%                     fname = mea.getFileName(30);
+                    
+                    % New tests:
+                    mea.start();
+                    fname = char(mea.fileName)
                     
                     % Persist the file name
                     if ~isempty(fname) && ~isempty(obj.persistor)
