@@ -57,7 +57,8 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
             obj.addDevice(frameMonitor);
             
             % Add the MEA device controller.
-            mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
+%             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
+            mea = manookinlab.devices.MEADevice(9001);
             obj.addDevice(mea);
         end
     end
