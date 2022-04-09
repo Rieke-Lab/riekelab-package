@@ -1,5 +1,10 @@
 classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
     
+    properties (Hidden, SetAccess = private)
+        meaFileName
+        isMeaRig
+    end
+    
     methods
         
         function prepareEpoch(obj, epoch)
@@ -13,16 +18,27 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
             if obj.numEpochsCompleted == 0
+                obj.isMeaRig = false; % Default
+                obj.meaFileName = ''; % Default
+                
                 % Check if this is an MEA rig.
                 mea = obj.rig.getDevices('MEA');
                 if ~isempty(mea)
+                    obj.isMeaRig = true;
+                    
                     mea = mea{1};
                     % Try to pull the output file name from the server.
 %                     fname = mea.getFileName(30);
                     
                     % New tests:
                     mea.start();
-                    fname = char(mea.fileName)
+                    fname = char(mea.fileName);
+                    
+                    if ~isempty(fname)
+                        obj.meaFileName = char(fname);
+                    else
+                        obj.meaFileName = '';
+                    end
                     
                     % Persist the file name
                     if ~isempty(fname) && ~isempty(obj.persistor)
@@ -34,6 +50,15 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                         catch
                         end
                     end
+                end
+            end
+            
+            % Persist the file name to the epoch if it's an MEA rig.
+            if obj.isMeaRig
+                try
+                    epoch.addParameter('dataFileName', obj.meaFileName);
+                catch ME
+                    disp(ME.message);
                 end
             end
         end
