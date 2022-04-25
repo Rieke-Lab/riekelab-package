@@ -67,7 +67,7 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
             ramps('high')    = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'confocal', 'microdisplay_below_high_gamma_ramp.txt'));
             ramps('maximum') = linspace(0, 65535, 256);
 %             microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 3.0, 'comPort', 'COM4');
-            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 3.0, 'comPort', 'COM4', 'host', '192.168.0.102');
+            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 2.88, 'comPort', 'COM4', 'host', '192.168.0.102');
             microdisplay.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(microdisplay, 15);
             microdisplay.addConfigurationSetting('ndfs', {}, ...
