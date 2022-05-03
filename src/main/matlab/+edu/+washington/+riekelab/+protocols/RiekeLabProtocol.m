@@ -57,10 +57,30 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             if obj.isMeaRig
                 try
                     epoch.addParameter('dataFileName', obj.meaFileName);
+                    
+                    % Create the external trigger to the MEA DAQ.
+                    triggers = obj.rig.getDevices('ExternalTrigger');
+                    if ~isempty(triggers)
+                        epoch.addStimulus(triggers{1}, obj.createTriggerStimulus());
+                    end
                 catch ME
                     disp(ME.message);
                 end
             end
+        end
+        
+        function stim = createTriggerStimulus(obj)
+            gen = symphonyui.builtin.stimuli.PulseGenerator();
+            
+            gen.preTime = 0;
+            gen.stimTime = obj.preTime + obj.stimTime + obj.tailTime - 1;
+            gen.tailTime = 1;
+            gen.amplitude = 1;
+            gen.mean = 0;
+            gen.sampleRate = obj.sampleRate;
+            gen.units = symphonyui.core.Measurement.UNITLESS;
+            
+            stim = gen.generate();
         end
         
         function completeEpoch(obj, epoch)
