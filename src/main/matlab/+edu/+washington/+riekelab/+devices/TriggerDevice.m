@@ -6,7 +6,7 @@ classdef TriggerDevice < symphonyui.core.Device
         
         function obj = TriggerDevice()
             
-            cobj = Symphony.Core.UnitConvertingExternalDevice('Trigger', 'none', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
+            cobj = Symphony.Core.UnitConvertingExternalDevice('ExternalTrigger', 'none', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
             obj@symphonyui.core.Device(cobj);
             obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
         end
