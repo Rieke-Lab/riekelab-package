@@ -3,9 +3,15 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
     properties (Hidden, SetAccess = private)
         meaFileName
         isMeaRig
+        startedRun
     end
     
     methods
+        function prepareRun(obj)
+            prepareRun@symphonyui.core.Protocol(obj);
+            
+            obj.startedRun = false;
+        end
         
         function prepareEpoch(obj, epoch)
             prepareEpoch@symphonyui.core.Protocol(obj, epoch);
@@ -17,7 +23,8 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
-            if obj.numEpochsCompleted == 0
+            if ~obj.startedRun
+                obj.startedRun = true;
                 obj.isMeaRig = false; % Default
                 obj.meaFileName = ''; % Default
                 
