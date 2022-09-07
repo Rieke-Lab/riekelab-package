@@ -98,6 +98,25 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_red_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_green_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_blue_spectrum.txt'))}));
+            
+            % Get the quantal catch.
+            myspect = containers.Map( ...
+                {'white', 'red', 'green', 'blue'}, { ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_white_spectrum.txt')), ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_red_spectrum.txt')), ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_green_spectrum.txt')), ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'microdisplay_below_blue_spectrum.txt'))});
+            
+            qCatch = zeros(3,4);
+            names = {'red','green','blue'};
+            for jj = 1 : length(names)
+                q = myspect(names{jj});
+                p = manookinlab.util.PhotoreceptorSpectrum( q(:, 1) );
+                p = p / sum(p(1, :));
+                qCatch(jj, :) = p * q(:, 2);
+            end
+            microdisplay.addResource('quantalCatch', qCatch);
+            
             obj.addDevice(microdisplay);
             
             % Add the frame monitor to record the timing of the monitor refresh.
