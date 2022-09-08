@@ -111,9 +111,10 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
             names = {'red','green','blue'};
             for jj = 1 : length(names)
                 q = myspect(names{jj});
-                p = manookinlab.util.PhotoreceptorSpectrum( q(:, 1) );
-                p = p / sum(p(1, :));
-                qCatch(jj, :) = p * q(:, 2);
+%                 p = manookinlab.util.PhotoreceptorSpectrum( q(:, 1) );
+%                 p = p / sum(p(1, :));
+%                 qCatch(jj, :) = p * q(:, 2);
+                qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
             end
             microdisplay.addResource('quantalCatch', qCatch);
             
