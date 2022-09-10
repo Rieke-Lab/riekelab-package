@@ -133,6 +133,11 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
             % Add the filter wheel.
             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM5');
             
+            % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
+            filterWheel.bindStream(daq.getStream('doport1'));
+            daq.getStream('doport1').setBitPosition(filterWheel, 14);
+            obj.addDevice(filterWheel);
+            
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
 %             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
             mea = manookinlab.devices.MEADevice(9001);
