@@ -79,8 +79,27 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
         function stim = createTriggerStimulus(obj)
             gen = symphonyui.builtin.stimuli.PulseGenerator();
             
+            % Ensure that pre/stim/tail time are defined.
+            if isprop(obj, 'preTime')
+                preT = obj.preTime
+            else
+                preT = 100
+            end
+            
+            if isprop(obj, 'tailTime')
+                tailT = obj.tailTime
+            else
+                tailT = 100
+            end
+            
+            if isprop(obj, 'stimTime')
+                stimT = obj.stimTime
+            else
+                stimT = 0
+            end
+            
             gen.preTime = 0;
-            gen.stimTime = obj.preTime + obj.stimTime + obj.tailTime - 1;
+            gen.stimTime = preT + stimT + tailT - 1;
             gen.tailTime = 1;
             gen.amplitude = 1;
             gen.mean = 0;
