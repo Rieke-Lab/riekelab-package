@@ -83,13 +83,13 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             if isprop(obj, 'preTime')
                 preT = obj.preTime
             else
-                preT = 100
+                preT = 50
             end
             
             if isprop(obj, 'tailTime')
                 tailT = obj.tailTime
             else
-                tailT = 100
+                tailT = 50
             end
             
             if isprop(obj, 'stimTime')
@@ -97,9 +97,10 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             else
                 stimT = 0
             end
+            total_time = max(100, preT + stimT + tailT);
             
             gen.preTime = 0;
-            gen.stimTime = preT + stimT + tailT - 1;
+            gen.stimTime = total_time - 1;
             gen.tailTime = 1;
             gen.amplitude = 1;
             gen.mean = 0;
