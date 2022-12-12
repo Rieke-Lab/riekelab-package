@@ -81,21 +81,21 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             
             % Ensure that pre/stim/tail time are defined.
             if isprop(obj, 'preTime')
-                preT = obj.preTime
+                preT = obj.preTime;
             else
-                preT = 50
+                preT = 50;
             end
             
             if isprop(obj, 'tailTime')
-                tailT = obj.tailTime
+                tailT = obj.tailTime;
             else
-                tailT = 50
+                tailT = 50;
             end
             
             if isprop(obj, 'stimTime')
-                stimT = obj.stimTime
+                stimT = obj.stimTime;
             else
-                stimT = 0
+                stimT = 0;
             end
             total_time = max(100, preT + stimT + tailT);
             
