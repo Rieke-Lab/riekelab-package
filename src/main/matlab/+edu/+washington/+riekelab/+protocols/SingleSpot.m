@@ -37,6 +37,9 @@ classdef SingleSpot < edu.washington.riekelab.protocols.RiekeLabStageProtocol
         function prepareRun(obj)
             prepareRun@edu.washington.riekelab.protocols.RiekeLabStageProtocol(obj);
             
+            % Show the progress bar.
+            obj.showFigure('manookinlab.figures.ProgressFigure', obj.numberOfAverages);
+            
             obj.showFigure('symphonyui.builtin.figures.ResponseFigure', obj.rig.getDevice(obj.amp));
             obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp));
             obj.showFigure('edu.washington.riekelab.figures.FrameTimingFigure', obj.rig.getDevice('Stage'), obj.rig.getDevice('Frame Monitor'));
