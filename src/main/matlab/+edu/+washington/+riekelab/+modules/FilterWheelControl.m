@@ -1,6 +1,8 @@
 classdef FilterWheelControl < symphonyui.ui.Module
     
     properties (Access = private)
+        log
+        settings
         stage
         filterWheel
         ndf
@@ -41,6 +43,8 @@ classdef FilterWheelControl < symphonyui.ui.Module
 
         end
         
+       
+        
     end
     
     methods (Access = protected)
@@ -58,6 +62,20 @@ classdef FilterWheelControl < symphonyui.ui.Module
             % Set the NDF to 4.0 on startup.
             obj.filterWheel.setNDF(4);
             set(obj.ndfSettingPopupMenu, 'Value', 4);
+            
+            try
+                obj.loadSettings();
+            catch x
+                obj.log.debug(['Failed to load settings: ' x.message], x);
+            end
+        end
+        
+        function willStop(obj)
+            try
+                obj.saveSettings();
+            catch x
+                obj.log.debug(['Failed to save settings: ' x.message], x);
+            end
         end
         
     end
@@ -74,6 +92,19 @@ classdef FilterWheelControl < symphonyui.ui.Module
         function onSelectedNdfSetting(obj, ~, ~)
             position = get(obj.ndfSettingPopupMenu, 'Value');
             obj.filterWheel.setNDF(position);
+        end
+        
+         function loadSettings(obj)
+            if ~isempty(obj.settings.viewPosition)
+                p1 = obj.view.position;
+                p2 = obj.settings.viewPosition;
+                obj.view.position = [p2(1) p2(2) p1(3) p1(4)];
+            end
+        end
+
+        function saveSettings(obj)
+            obj.settings.viewPosition = obj.view.position;
+            obj.settings.save();
         end
     end
 end

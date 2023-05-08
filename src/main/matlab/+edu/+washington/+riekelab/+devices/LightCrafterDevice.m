@@ -6,6 +6,10 @@ classdef LightCrafterDevice < symphonyui.core.Device
         patternRatesToAttributes
     end
     
+    properties (Access = private)
+        max_led_current
+    end
+    
     methods
         
         function obj = LightCrafterDevice(varargin)
@@ -13,6 +17,8 @@ classdef LightCrafterDevice < symphonyui.core.Device
             ip.addParameter('host', 'localhost', @ischar);
             ip.addParameter('port', 5678, @isnumeric);
             ip.addParameter('micronsPerPixel', @isnumeric);
+            ip.addParameter('ledCurrents',[], @isnumeric);
+            ip.addParameter('customLightEngine', false, @islogical);
             ip.parse(varargin{:});
             
             cobj = Symphony.Core.UnitConvertingExternalDevice(['LightCrafter Stage@' ip.Results.host], 'Texas Instruments', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
@@ -35,6 +41,18 @@ classdef LightCrafterDevice < symphonyui.core.Device
             obj.lightCrafter.setLedEnables(true, false, false, false);
             [auto, red, green, blue] = obj.lightCrafter.getLedEnables();
             
+            if ip.Results.customLightEngine
+                obj.max_led_current = 50;
+            else
+                obj.max_led_current = 255;
+            end
+            if ~isempty(ip.Results.ledCurrents)
+                led_currents = ip.Results.ledCurrents;
+                obj.lightCrafter.setLedCurrents(min(led_currents(1),obj.max_led_current), min(led_currents(2),obj.max_led_current), min(led_currents(3),obj.max_led_current));
+            end
+            % Get the LED currents.
+            [red_current, green_current, blue_current] = obj.lightCrafter.getLedCurrents();
+            
             refreshRate = obj.stageClient.getMonitorRefreshRate();
             obj.patternRatesToAttributes = containers.Map('KeyType', 'double', 'ValueType', 'any');
             obj.patternRatesToAttributes(1 * refreshRate)  = {8, 'white', 1};
@@ -53,6 +71,7 @@ classdef LightCrafterDevice < symphonyui.core.Device
             
             obj.addConfigurationSetting('canvasSize', canvasSize, 'isReadOnly', true);
             obj.addConfigurationSetting('trueCanvasSize', trueCanvasSize, 'isReadOnly', true);
+            obj.addConfigurationSetting('lightCrafterLedCurrents',[red_current, green_current, blue_current],'isReadOnly',true);
             obj.addConfigurationSetting('centerOffset', [0 0], 'isReadOnly', true);
             obj.addConfigurationSetting('monitorRefreshRate', refreshRate, 'isReadOnly', true);
             obj.addConfigurationSetting('prerender', false, 'isReadOnly', true);
@@ -174,6 +193,18 @@ classdef LightCrafterDevice < symphonyui.core.Device
         
         function [auto, red, green, blue] = getLedEnables(obj)
             [auto, red, green, blue] = obj.lightCrafter.getLedEnables();
+        end
+        
+        function [red, green, blue] = getLedCurrents(obj)
+            [red, green, blue] = obj.lightCrafter.getLedCurrents();
+        end
+
+        function setLedCurrents(obj, red, green, blue)
+            red = min(red, obj.max_led_current);
+            green = min(green, obj.max_led_current);
+            blue = min(blue,obj.max_led_current);
+            obj.lightCrafter.setLedCurrents(red, green, blue);
+            obj.setReadOnlyConfigurationSetting('lightCrafterLedCurrents', [red, green, blue]);
         end
         
         function r = availablePatternRates(obj)
