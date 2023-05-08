@@ -9,6 +9,11 @@ classdef FilterWheelControl < symphonyui.ui.Module
     
     methods
         
+        function obj = FilterWheelControl()
+            obj.log = log4m.LogManager.getLogger(class(obj));
+            obj.settings = edu.washington.riekelab.modules.settings.FilterWheelControlSettings();
+        end
+        
         function createUi(obj, figureHandle)
             import appbox.*;
             
