@@ -1,8 +1,8 @@
-classdef SharedTwoPhotonLedAbove < symphonyui.core.descriptions.RigDescription
+classdef SharedTwoPhotonWithLedAboveWithoutBlueFilter < symphonyui.core.descriptions.RigDescription
     
     methods
         
-        function obj = SharedTwoPhotonLedAbove()
+        function obj = SharedTwoPhotonWithLedAboveWithoutBlueFilter()
             import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
@@ -56,7 +56,7 @@ classdef SharedTwoPhotonLedAbove < symphonyui.core.descriptions.RigDescription
             blue.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'shared_two_photon', 'blue_led_spectrum_lineB.txt')));                       
             obj.addDevice(blue);
             
-
+            
             temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai6'));
             obj.addDevice(temperature);
             

@@ -428,6 +428,8 @@ classdef DeviceCalibrator < symphonyui.ui.Module
                         continue;
                     end
                     t = readtable(paths(setting), 'Format', '%s %s %f %f %f %f %s');
+                    t.intensity
+
                     t.date = datetime(t.date);
                     t = sortrows(t, 'date', 'descend');
                     m(setting) = t;
