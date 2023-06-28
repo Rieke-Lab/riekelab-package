@@ -8,6 +8,7 @@ classdef LedPulse < edu.washington.riekelab.protocols.RiekeLabProtocol
         tailTime = 400                  % Pulse trailing duration (ms)
         lightAmplitude = 0.1            % Pulse amplitude (V or norm. [0-1] depending on LED units)
         lightMean = 0                   % Pulse and LED background mean (V or norm. [0-1] depending on LED units)
+        psth=true
         amp                             % Input amplifier
     end
     
@@ -51,7 +52,7 @@ classdef LedPulse < edu.washington.riekelab.protocols.RiekeLabProtocol
             
             if numel(obj.rig.getDeviceNames('Amp')) < 2
                 obj.showFigure('symphonyui.builtin.figures.ResponseFigure', obj.rig.getDevice(obj.amp));
-                obj.showFigure('symphonyui.builtin.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp));
+                obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp), 'psth',obj.psth);       
                 obj.showFigure('symphonyui.builtin.figures.ResponseStatisticsFigure', obj.rig.getDevice(obj.amp), {@mean, @var}, ...
                     'baselineRegion', [0 obj.preTime], ...
                     'measurementRegion', [obj.preTime obj.preTime+obj.stimTime]);

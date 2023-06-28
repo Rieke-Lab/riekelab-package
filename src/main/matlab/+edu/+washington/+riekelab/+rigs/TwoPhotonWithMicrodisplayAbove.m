@@ -1,4 +1,4 @@
-classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhoton
+classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhotonWithLEDsAbove
     
     methods
         
@@ -15,16 +15,17 @@ classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhoton
             ramps('medium')  = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'two_photon', 'microdisplay_above_medium_gamma_ramp.txt'));
             ramps('high')    = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'two_photon', 'microdisplay_above_high_gamma_ramp.txt'));
             ramps('maximum') = linspace(0, 65535, 256);
-            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1.1, 'comPort', 'COM3');
+            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1, 'comPort', 'COM3');
             microdisplay.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(microdisplay, 15);
             microdisplay.addConfigurationSetting('ndfs', {}, ...
-                'type', PropertyType('cellstr', 'row', {'B1', 'B2', 'B3', 'B4', 'B12', 'B13'}));
+                'type', PropertyType('cellstr', 'row', {'B1', 'B2', 'B3', 'B4', 'B12', 'B13', ...
+                 'FW05', 'FW1', 'FW2', 'FW3', 'FW4'}));
             microdisplay.addResource('ndfAttenuations', containers.Map( ...
                 {'white', 'red', 'green', 'blue'}, { ...
                 containers.Map( ...
-                    {'B1', 'B2', 'B3', 'B4', 'B12', 'B13'}, ...
-                    {0.26, 0.60, 0.98, 2.21, 0.27, 1.03}), ...
+                    {'B1', 'B2', 'B3', 'B4', 'B12', 'B13', 'FW05', 'FW1', 'FW2', 'FW3', 'FW4'}, ...
+                    {0.26, 0.60, 0.98, 2.21, 0.27, 1.03, 0.51, 1.0, 2.09, 3.05, 3.90}), ...
                 containers.Map( ...
                     {'B1', 'B2', 'B3', 'B4', 'B12', 'B13'}, ...
                     {0.26, 0.60, 0.97, 2.09, 0.27, 1.01}), ...
@@ -50,6 +51,16 @@ classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhoton
             
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
             obj.addDevice(frameMonitor);
+         
+            % Add the filter wheel.
+            filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM6');
+            
+            % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
+            daq = obj.daqController;
+            filterWheel.bindStream(daq.getStream('doport1'));
+            daq.getStream('doport1').setBitPosition(filterWheel, 15);
+            
+            obj.addDevice(filterWheel);
         end
         
     end
