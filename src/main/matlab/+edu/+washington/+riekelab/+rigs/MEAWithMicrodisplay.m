@@ -125,7 +125,7 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
             obj.addDevice(frameMonitor);
             
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
-            trigger = riekelab.devices.TriggerDevice('adc_type','DIGITAL');
+            trigger = riekelab.devices.TriggerDevice();
             trigger.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(trigger, 0);
             obj.addDevice(trigger);
