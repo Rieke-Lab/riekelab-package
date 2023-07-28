@@ -21,11 +21,6 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                 epoch.addResponse(controllers{1});
             end
             
-            triggers = obj.rig.getDevices('ExternalTrigger');
-            if ~isempty(triggers)
-                epoch.addStimulus(triggers{1}, obj.createTriggerStimulus(triggers{1}));
-            end
-            
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
             if ~obj.startedRun
