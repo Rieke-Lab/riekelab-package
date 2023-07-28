@@ -1,10 +1,6 @@
 classdef TriggerDevice < symphonyui.core.Device
     % Device for TTL triggering to synchronize the Symphony clock with that of other external devices.
 
-    properties (Access = private)
-        adc_type
-    end
-    
     methods
         
         function obj = TriggerDevice(varargin)
@@ -18,15 +14,17 @@ classdef TriggerDevice < symphonyui.core.Device
                 adc_type = 'DIGITAL';
             end
             obj.adc_type = adc_type;
+            disp(adc_type)
 
             if strcmp(adc_type, 'DIGITAL')
                 cobj = Symphony.Core.UnitConvertingExternalDevice('ExternalTrigger', 'none', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
-                obj@symphonyui.core.Device(cobj);
-                obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
+                
+                
             else
                 cobj = Symphony.Core.UnitConvertingDevice('ExternalTrigger', 'V');
-                obj@symphonyui.core.Device(cobj);
             end
+            obj@symphonyui.core.Device(cobj);
+            obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
 
             % Add configuration settings.
             obj.addConfigurationSetting('adc_type', adc_type);

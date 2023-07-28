@@ -21,6 +21,11 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                 epoch.addResponse(controllers{1});
             end
             
+            triggers = obj.rig.getDevices('ExternalTrigger');
+            if ~isempty(triggers)
+                epoch.addStimulus(triggers{1}, obj.createTriggerStimulus(triggers{1}));
+            end
+            
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
             if ~obj.startedRun
@@ -68,7 +73,7 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                     % Create the external trigger to the MEA DAQ.
                     triggers = obj.rig.getDevices('ExternalTrigger');
                     if ~isempty(triggers)
-                        epoch.addStimulus(triggers{1}, obj.createTriggerStimulus());
+                        epoch.addStimulus(triggers{1}, obj.createTriggerStimulus(triggers{1}));
                     end
                 catch ME
                     disp(ME.message);
@@ -76,8 +81,14 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             end
         end
         
-        function stim = createTriggerStimulus(obj)
+        function stim = createTriggerStimulus(obj, trigger_device)
             gen = symphonyui.builtin.stimuli.PulseGenerator();
+            
+            if strcmp(trigger_device.measurementConversionTarget,'V')
+                amplitude = 5;
+            else
+                amplitude = 1;
+            end
             
             % Ensure that pre/stim/tail time are defined.
             if isprop(obj, 'preTime')
@@ -102,10 +113,10 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             gen.preTime = 0;
             gen.stimTime = total_time - 1;
             gen.tailTime = 1;
-            gen.amplitude = 1;
+            gen.amplitude = amplitude;
             gen.mean = 0;
             gen.sampleRate = obj.sampleRate;
-            gen.units = symphonyui.core.Measurement.UNITLESS;
+            gen.units = trigger_device.background.displayUnits; %symphonyui.core.Measurement.UNITLESS;
             
             stim = gen.generate();
         end
