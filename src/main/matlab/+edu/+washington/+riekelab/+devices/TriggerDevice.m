@@ -24,6 +24,8 @@ classdef TriggerDevice < symphonyui.core.Device
                 obj@symphonyui.core.Device(cobj);
                 obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
             else
+                cobj = Symphony.Core.UnitConvertingDevice('ExternalTrigger', 'V');
+                obj@symphonyui.core.Device(cobj);
             end
 
             % Add configuration settings.
