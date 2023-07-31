@@ -79,10 +79,12 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
         function stim = createTriggerStimulus(obj, trigger_device)
             gen = symphonyui.builtin.stimuli.PulseGenerator();
             
-            if strcmp(trigger_device.measurementConversionTarget,'V')
+            if strcmp(trigger_device.background.displayUnits,'V') 
                 amplitude = 5;
+                units = 'V';
             else
                 amplitude = 1;
+                units = symphonyui.core.Measurement.UNITLESS;
             end
             
             % Ensure that pre/stim/tail time are defined.
@@ -111,7 +113,7 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             gen.amplitude = amplitude;
             gen.mean = 0;
             gen.sampleRate = obj.sampleRate;
-            gen.units = trigger_device.background.displayUnits; %symphonyui.core.Measurement.UNITLESS;
+            gen.units = units; %symphonyui.core.Measurement.UNITLESS;
             
             stim = gen.generate();
         end
