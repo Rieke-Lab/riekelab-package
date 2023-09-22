@@ -44,7 +44,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(lightCrafter, 15);
             
             qCatch = zeros(3,4);
-            names = {'red','green','blue'};
+            names = {'red','green_565','blue'};
             for jj = 1 : length(names)
                 q = myspect(names{jj});
                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
