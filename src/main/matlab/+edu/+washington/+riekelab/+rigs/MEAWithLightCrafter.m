@@ -70,6 +70,10 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
             
+            % Get the red sync pulse from the lightcrafter.
+            red_ttl = UnitConvertingDevice('Red Sync', 'V').bindStream(daq.getStream('ai5'));
+            obj.addDevice(red_ttl);
+            
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
 %             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
             mea = manookinlab.devices.MEADevice(9001);
