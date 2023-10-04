@@ -16,6 +16,10 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
             
+            % Get the red sync pulse from the lightcrafter.
+            redTTL = UnitConvertingDevice('Red Sync', 'V').bindStream(daq.getStream('ai6'));
+            obj.addDevice(redTTL);
+            
             % Add the LightCrafter
             ramps = containers.Map();
             ramps('red')    = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'red_gamma_ramp.txt'));
@@ -23,9 +27,11 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             ramps('blue')   = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'blue_gamma_ramp.txt'));
             
             lightCrafter = manookinlab.devices.LcrVideoDevice(...
-                'micronsPerPixel', 2.67, ...
+                'micronsPerPixel', 2.43, ...
                 'gammaRamps', ramps, ...
                 'host', '192.168.0.102', ...
+                'local_movie_directory','C:\Users\Public\Documents\GitRepos\Symphony2\movies\',...
+                'stage_movie_directory','Y:\\movies\',...
                 'ledCurrents',[10,7,50],...
                 'customLightEngine',true);
             
@@ -56,6 +62,8 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
             obj.addDevice(frameMonitor);
             
+            
+            
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
             trigger = riekelab.devices.TriggerDevice();
             trigger.bindStream(daq.getStream('doport1'));
@@ -70,9 +78,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
             
-            % Get the red sync pulse from the lightcrafter.
-            red_ttl = UnitConvertingDevice('Red Sync', 'V').bindStream(daq.getStream('ai5'));
-            obj.addDevice(red_ttl);
+            
             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
 %             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');

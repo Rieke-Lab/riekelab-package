@@ -20,6 +20,11 @@ classdef (Abstract) RiekeLabStageProtocol < edu.washington.riekelab.protocols.Ri
             if ~isempty(frameMonitor)
                 epoch.addResponse(frameMonitor{1});
             end
+            
+            redSync = obj.rig.getDevices('Red Sync');
+            if ~isempty(redSync)
+                epoch.addResponse(redSync{1});
+            end
         end
         
         function controllerDidStartHardware(obj)
