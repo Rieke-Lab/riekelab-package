@@ -14,7 +14,7 @@ classdef LedSPDTDevice < symphonyui.core.Device
       ip.addParameter('ledNames', {'Green_570nm','Green_505nm'}, @iscell);
       ip.parse(varargin{:});
       
-      cobj = Symphony.Core.UnitConvertingExternalDevice('FilterWheel', 'ThorLabs', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
+      cobj = Symphony.Core.UnitConvertingExternalDevice('LedSPDTDevice', 'Custom', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
       obj@symphonyui.core.Device(cobj);
       obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
 
