@@ -1,25 +1,26 @@
-classdef FilterWheelControl < symphonyui.ui.Module
+classdef LedSPDTControl < symphonyui.ui.Module
     
     properties (Access = private)
         log
         settings
-        filterWheel
+        led_switch
+        led_names
         ndf
-        ndfSettingPopupMenu
+        settingPopupMenu
     end
     
     methods
         
-        function obj = FilterWheelControl()
+        function obj = LedSPDTControl()
             obj.log = log4m.LogManager.getLogger(class(obj));
-            obj.settings = edu.washington.riekelab.modules.settings.FilterWheelControlSettings();
+            obj.settings = edu.washington.riekelab.modules.settings.LedSPDTControlSettings();
         end
         
         function createUi(obj, figureHandle)
             import appbox.*;
             
             set(figureHandle, ...
-                'Name', 'ND Wheel Control', ...
+                'Name', 'LED Switch Control', ...
                 'Position', screenCenter(200, 50));
             
             mainLayout = uix.HBox( ...
@@ -27,40 +28,39 @@ classdef FilterWheelControl < symphonyui.ui.Module
                 'Padding', 11, ...
                 'Spacing', 7);
             
-            filterWheelLayout = uix.Grid( ...
+            subLayout = uix.Grid( ...
                 'Parent', mainLayout, ...
                 'Spacing', 2);
             Label( ...
-                'Parent', filterWheelLayout, ...
-                'String', 'NDF value:');
+                'Parent', subLayout, ...
+                'String', 'LED value:');
 
-            obj.ndfSettingPopupMenu = MappedPopupMenu( ...
-                'Parent', filterWheelLayout, ...
+            obj.settingPopupMenu = MappedPopupMenu( ...
+                'Parent', subLayout, ...
                 'String', {' '}, ...
                 'HorizontalAlignment', 'left', ...
-                'Callback', @obj.onSelectedNdfSetting);
-
+                'Callback', @obj.onSelectedSetting);
         end
-        
-       
-        
     end
     
     methods (Access = protected)
         
         function willGo(obj)
-            devices = obj.configurationService.getDevices('FilterWheel');
+            devices = obj.configurationService.getDevices('LedSPDTDevice');
             if isempty(devices)
-                error('No filterWheel device found');
+                error('No LED switch device found');
             end
             
-            obj.filterWheel = devices{1};
+            obj.led_switch = devices{1};
             
-            obj.populateNdfSettingList();
+            % Get the LED names from the SPDT device.
+            obj.led_names = obj.led_switch.get_LED_names();
             
-            % Set the NDF to 4.0 on startup.
-            obj.filterWheel.setNDF(4);
-            set(obj.ndfSettingPopupMenu, 'Value', 4);
+            obj.populateSettingList();
+            
+            % Set to channel one on startup
+            obj.led_switch.set_LED(obj.led_names{1});
+            set(obj.settingPopupMenu, 'Value', 1);
             
             try
                 obj.loadSettings();
@@ -80,17 +80,15 @@ classdef FilterWheelControl < symphonyui.ui.Module
     end
     
     methods (Access = private)
-        function populateNdfSettingList(obj)
-            ndfNums = {0.0, 0.5, 1.0, 2.0, 3.0, 4.0};
-            ndfs = {'0.0', '0.5', '1.0', '2.0', '3.0', '4.0'}; 
-            
-            set(obj.ndfSettingPopupMenu, 'String', ndfs);
-            set(obj.ndfSettingPopupMenu, 'Values', ndfNums);
+        function populateSettingList(obj)
+            positions = {1,2};
+            set(obj.settingPopupMenu, 'String', obj.led_names);
+            set(obj.settingPopupMenu, 'Values', positions);
         end
         
-        function onSelectedNdfSetting(obj, ~, ~)
-            position = get(obj.ndfSettingPopupMenu, 'Value');
-            obj.filterWheel.setNDF(position);
+        function onSelectedSetting(obj, ~, ~)
+            position = get(obj.settingPopupMenu, 'Value');
+            obj.led_switch.set_LED( obj.led_names{position} );
         end
         
          function loadSettings(obj)
