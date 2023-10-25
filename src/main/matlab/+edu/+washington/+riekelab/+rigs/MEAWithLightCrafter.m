@@ -63,20 +63,23 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
                     {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}, ...
                     {0, 0.5305, 1.0502, 2.4253, 3.6195, 4.8356})}));
             
-            qCatch = zeros(3,4);
-            names = {'red','green_565','blue'};
-            for jj = 1 : length(names)
-                q = myspect(names{jj});
-                qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
-            end
+            qCatch = [
+                1.12,0.21,0.00178,0.03158;
+                2.754,1.791,0.00401,1.302;
+                0.7118,0.659,3.535,3.6988]*1e5;
+                
+%             qCatch = zeros(3,4);
+%             names = {'red','green_565','blue'};
+%             for jj = 1 : length(names)
+%                 q = myspect(names{jj});
+%                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
+%             end
             lightCrafter.addResource('quantalCatch', qCatch);
             obj.addDevice(lightCrafter);
             
             % Add the frame monitor to record the timing of the monitor refresh.
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
             obj.addDevice(frameMonitor);
-            
-            
             
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
             trigger = riekelab.devices.TriggerDevice();
@@ -93,10 +96,9 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             obj.addDevice(filterWheel);
 
             % Add the SPDT switch to control the LEDs.
-            led_switch = riekelab.devices.LedSPDTDevice('comPort', 'COM4', 'ledNames', {'Green_570nm','Green_505nm'});
-            daq.getStream('doport1').setBitPosition(led_switch, 13);
-            obj.addDevice(led_switch);
-            
+%             led_switch = riekelab.devices.LedSPDTDevice('comPort', 'COM6', 'ledNames', {'Green_570nm','Green_505nm'});
+%             daq.getStream('doport1').setBitPosition(led_switch, 13);
+%             obj.addDevice(led_switch);
             
             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
