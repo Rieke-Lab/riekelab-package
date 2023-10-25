@@ -91,6 +91,11 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             filterWheel.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
+
+            % Add the SPDT switch to control the LEDs.
+            led_switch = riekelab.devices.LedSPDTDevice('comPort', 'COM4', 'ledNames', {'Green_570nm','Green_505nm'});
+            daq.getStream('doport1').setBitPosition(led_switch, 13);
+            obj.addDevice(led_switch);
             
             
             
