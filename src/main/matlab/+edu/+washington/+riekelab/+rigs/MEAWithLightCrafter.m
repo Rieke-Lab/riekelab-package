@@ -43,6 +43,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_Blue_spectrum.txt'))});
             
             lightCrafter.addResource('spectrum', myspect);
+            lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
             daq = obj.daqController;
