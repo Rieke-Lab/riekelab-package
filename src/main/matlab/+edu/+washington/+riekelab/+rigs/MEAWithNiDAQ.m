@@ -15,6 +15,10 @@ classdef MEAWithNiDAQ < symphonyui.core.descriptions.RigDescription
             % Add the Multiclamp device (demo mode).
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
+
+            % Check which analog input channel the temperature controller is on!!
+            temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai7'));
+            obj.addDevice(temperature);
             
 %             % Add the LEDs.
 %             uvRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'uv_led_gamma_ramp.txt'));
