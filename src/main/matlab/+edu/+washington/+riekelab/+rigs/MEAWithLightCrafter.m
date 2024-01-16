@@ -17,7 +17,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             obj.addDevice(amp1);
 
             % Check which analog input channel the temperature controller is on!!
-            temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai7'));
+            temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai3'));
             obj.addDevice(temperature);
             
             % Get the red sync pulse from the lightcrafter.
