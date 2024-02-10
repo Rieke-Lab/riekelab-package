@@ -24,7 +24,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             redTTL = UnitConvertingDevice('Red Sync', 'V').bindStream(daq.getStream('ai6'));
             obj.addDevice(redTTL);
             
-            % Add the LightCrafter
+            % Add the LightCrafter (pattern mode)
             lightCrafter = edu.washington.riekelab.devices.LightCrafterDevice(...
                 'micronsPerPixel', 2.43, ...
                 'host', '192.168.0.102', ...
@@ -94,14 +94,7 @@ classdef MEAWithLightCrafter < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
 
-            % Add the SPDT switch to control the LEDs.
-%             led_switch = riekelab.devices.LedSPDTDevice('comPort', 'COM6', 'ledNames', {'Green_570nm','Green_505nm'});
-%             daq.getStream('doport1').setBitPosition(led_switch, 13);
-%             obj.addDevice(led_switch);
-            
-            
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
-%             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
             mea = manookinlab.devices.MEADevice(9001);
             obj.addDevice(mea);
         end
