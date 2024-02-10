@@ -2,7 +2,7 @@ classdef MEAWithMicrodisplay < symphonyui.core.descriptions.RigDescription
     
     methods
         
-        function obj = MEAWithMicrodisplay()
+        function obj = MeaHekaLcrVideoMode()
             import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
