@@ -2,7 +2,7 @@ classdef MEAWithNiDAQ < symphonyui.core.descriptions.RigDescription
     
     methods
         
-        function obj = MEAWithNiDAQ()
+        function obj = MeaNiLcrVideoMode()
             import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
