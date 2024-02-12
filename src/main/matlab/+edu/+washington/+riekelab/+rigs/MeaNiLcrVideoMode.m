@@ -1,4 +1,4 @@
-classdef MEAWithNiDAQ < symphonyui.core.descriptions.RigDescription
+classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
     
     methods
         
