@@ -87,7 +87,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
 %             
 %             % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
 %             filterWheel.bindStream(daq.getStream('doport1'));
-%             daq.getStream('doport1').setBitPosition(filterWheel, 14);
+%             daq.getStream('doport0').setBitPosition(filterWheel, 14);
 %             obj.addDevice(filterWheel);
 %             
 %             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
