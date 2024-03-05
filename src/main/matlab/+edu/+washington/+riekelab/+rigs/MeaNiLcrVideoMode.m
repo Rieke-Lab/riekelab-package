@@ -27,7 +27,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             ramps('blue')   = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'blue_gamma_ramp.txt'));
             
             lightCrafter = manookinlab.devices.LcrVideoDevice(...
-                'micronsPerPixel', 2.43, ...
+                'micronsPerPixel', 1.0, ...
                 'gammaRamps', ramps, ...
                 'host', '192.168.0.102', ...
                 'local_movie_directory','C:\Users\Public\Documents\GitRepos\Symphony2\movies\',...
@@ -46,9 +46,9 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
-            daq = obj.daqController;
-            lightCrafter.bindStream(daq.getStream('doport0'));
-            daq.getStream('doport0').setBitPosition(lightCrafter, 2);
+%             daq = obj.daqController;
+%             lightCrafter.bindStream(daq.getStream('doport0'));
+%             daq.getStream('doport0').setBitPosition(lightCrafter, 2);
             
             lightCrafter.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}));
@@ -73,14 +73,12 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             obj.addDevice(lightCrafter);
    
             % Add the frame monitor to record the timing of the monitor refresh.
-            frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai1'));
+            frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai4'));
             obj.addDevice(frameMonitor);
             
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
-            trigger = riekelab.devices.TriggerDevice();
-            trigger.bindStream(daq.getStream('doport0'));
-            daq.getStream('doport0').setBitPosition(trigger, 0);
-            obj.addDevice(trigger);
+%             trigger = UnitConvertingDevice('ExternalTrigger', 'V').bindStream(daq.getStream('ao1'));
+%             obj.addDevice(trigger);
 %             
 %             % Add the filter wheel.
 %             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM5');
@@ -91,8 +89,8 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
 %             obj.addDevice(filterWheel);
 %             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
-            mea = manookinlab.devices.MEADevice(9001);
-            obj.addDevice(mea);
+%             mea = manookinlab.devices.MEADevice(9001);
+%             obj.addDevice(mea);
         end
     end
 end
