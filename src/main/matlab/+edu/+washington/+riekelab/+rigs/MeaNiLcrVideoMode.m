@@ -12,6 +12,8 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             daq = NiDaqController();
             obj.daqController = daq;
             
+            daq = obj.daqController;
+            
             % Add the Multiclamp device (demo mode).
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
@@ -46,9 +48,8 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
-%             daq = obj.daqController;
-%             lightCrafter.bindStream(daq.getStream('doport0'));
-%             daq.getStream('doport0').setBitPosition(lightCrafter, 2);
+            lightCrafter.bindStream(daq.getStream('doport0'));
+            daq.getStream('doport0').setBitPosition(lightCrafter, 2);
             
             lightCrafter.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}));
@@ -65,7 +66,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
                     {0, 0.5305, 1.0502, 2.4253, 3.6195, 4.8356})}));
             
             qCatch = [
-                0.296662164412504   0.056639744924133   0.000470866513993   0.008337083695311
+               0.296662164412504   0.056639744924133   0.000470866513993   0.008337083695311
                1.717472065022683   1.117026807669420   0.002502841889190   0.812127219852966
                0.427928281158783   0.396201570865606   2.125287451583463   2.223676348313830]*1e5;
             
@@ -77,8 +78,8 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             obj.addDevice(frameMonitor);
             
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
-%             trigger = UnitConvertingDevice('ExternalTrigger', 'V').bindStream(daq.getStream('ao1'));
-%             obj.addDevice(trigger);
+            trigger = UnitConvertingDevice('ExternalTrigger', 'V').bindStream(daq.getStream('ao1'));
+            obj.addDevice(trigger);
 %             
 %             % Add the filter wheel.
 %             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM5');
