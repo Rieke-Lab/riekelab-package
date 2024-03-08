@@ -80,18 +80,18 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
             trigger = UnitConvertingDevice('ExternalTrigger', 'V').bindStream(daq.getStream('ao1'));
             obj.addDevice(trigger);
-%             
-%             % Add the filter wheel.
-%             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM5');
+            
+            % Add the filter wheel.
+            filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM4');
 %             
 %             % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
-%             filterWheel.bindStream(daq.getStream('doport1'));
-%             daq.getStream('doport0').setBitPosition(filterWheel, 14);
-%             obj.addDevice(filterWheel);
+            filterWheel.bindStream(daq.getStream('doport0'));
+            daq.getStream('doport0').setBitPosition(filterWheel, 14);
+            obj.addDevice(filterWheel);
 %             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
-%             mea = manookinlab.devices.MEADevice(9001);
-%             obj.addDevice(mea);
+            mea = manookinlab.devices.MEADevice(9001);
+            obj.addDevice(mea);
         end
     end
 end
