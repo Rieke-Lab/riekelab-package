@@ -49,7 +49,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
             lightCrafter.bindStream(daq.getStream('doport0'));
-            daq.getStream('doport0').setBitPosition(lightCrafter, 2);
+            daq.getStream('doport0').setBitPosition(lightCrafter, 15);
             
             lightCrafter.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}));
@@ -78,13 +78,15 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             obj.addDevice(frameMonitor);
             
             % Add a device for external triggering to synchronize MEA DAQ clock with Symphony DAQ clock.
-            trigger = UnitConvertingDevice('ExternalTrigger', 'V').bindStream(daq.getStream('ao1'));
+            trigger = riekelab.devices.TriggerDevice();
+            trigger.bindStream(daq.getStream('doport0'));
+            daq.getStream('doport0').setBitPosition(trigger, 0);
             obj.addDevice(trigger);
             
             % Add the filter wheel.
             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM4');
-%             
-%             % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
+            
+            % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
             filterWheel.bindStream(daq.getStream('doport0'));
             daq.getStream('doport0').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
