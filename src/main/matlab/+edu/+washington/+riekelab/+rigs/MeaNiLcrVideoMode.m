@@ -15,6 +15,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             daq = obj.daqController;
             
             % Add the Multiclamp device (demo mode).
+%             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
 
@@ -96,15 +97,6 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             filterWheel.bindStream(daq.getStream('doport0'));
             daq.getStream('doport0').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
-            
-            analog_dummy1 = UnitConvertingDevice('Dummy1', 'V', 'manufacturer', 'None').bindStream(daq.getStream('ai1'));
-            obj.addDevice(analog_dummy1);
-            analog_dummy2 = UnitConvertingDevice('Dummy2', 'V', 'manufacturer', 'None').bindStream(daq.getStream('ai3'));
-            obj.addDevice(analog_dummy2);
-            digital_dummy1 = manookinlab.devices.RigPropertyDevice('Rieke', 'rigH');
-            digital_dummy1.bindStream(daq.getStream('doport0'));
-            daq.getStream('doport0').setBitPosition(digital_dummy1, 13);
-            obj.addDevice(digital_dummy1);
             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
             mea = manookinlab.devices.MEADevice(9001);
