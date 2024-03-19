@@ -15,7 +15,6 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             daq = obj.daqController;
             
             % Add the Multiclamp device (demo mode).
-%             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
 
