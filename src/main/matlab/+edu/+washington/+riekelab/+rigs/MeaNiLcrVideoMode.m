@@ -53,7 +53,6 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_blue_spectrum.txt'))});
             
             lightCrafter.addResource('spectrum', myspect);
-            lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
             lightCrafter.bindStream(daq.getStream('doport0'));
