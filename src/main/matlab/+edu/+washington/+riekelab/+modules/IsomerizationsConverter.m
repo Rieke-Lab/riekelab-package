@@ -307,6 +307,8 @@ classdef IsomerizationsConverter < symphonyui.ui.Module
                     colors = {'white', 'red', 'green', 'blue'};
                 elseif ~isempty(regexpi(obj.stage.name, 'LightCrafter', 'once'))
                     colors = {'auto', 'red', 'green', 'blue'};
+                elseif ~isempty(regexpi(obj.stage.name, 'LcrVideo', 'once'))
+                    colors = {'auto', 'red', 'green', 'blue'};
                 else
                     colors = {'none'};
                 end
