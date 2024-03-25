@@ -17,6 +17,10 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             % Add the Multiclamp device (demo mode).
             amp1 = MultiClampDevice('Amp1', 1).bindStream(daq.getStream('ao0')).bindStream(daq.getStream('ai0'));
             obj.addDevice(amp1);
+            
+            % Add the signal generator (~100 Hz).
+            signal_gen = UnitConvertingDevice('Waveform Generator', 'V').bindStream(daq.getStream('ai1'));
+            obj.addDevice(signal_gen);
 
             % Check which analog input channel the temperature controller is on!!
             temperature = UnitConvertingDevice('Temperature Controller', 'V', 'manufacturer', 'Warner Instruments').bindStream(daq.getStream('ai2'));
