@@ -21,6 +21,11 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                 epoch.addResponse(controllers{1});
             end
             
+            wvfrm = obj.rig.getDevices('Waveform Generator');
+            if ~isempty(wvfrm)
+                epoch.addResponse(wvfrm{1});
+            end
+            
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
             if ~obj.startedRun
