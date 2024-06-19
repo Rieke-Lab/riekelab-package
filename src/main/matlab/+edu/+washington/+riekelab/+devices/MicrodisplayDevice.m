@@ -16,6 +16,7 @@ classdef MicrodisplayDevice < symphonyui.core.Device
             ip.addParameter('host', 'localhost', @ischar);
             ip.addParameter('port', 5678, @isnumeric);
             ip.addParameter('comPort', 'COM4', @ischar);
+            ip.addParameter('expectedRefreshRate',60.22, @isnumeric);
             ip.addParameter('gammaRamps', containers.Map( ...
                 {'minimum', 'low', 'medium', 'high', 'maximum'}, ...
                 {linspace(0, 65535, 256), linspace(0, 65535, 256), linspace(0, 65535, 256), linspace(0, 65535, 256), linspace(0, 65535, 256)}), ...
@@ -45,6 +46,7 @@ classdef MicrodisplayDevice < symphonyui.core.Device
             obj.addConfigurationSetting('trueCanvasSize', trueCanvasSize, 'isReadOnly', true);
             obj.addConfigurationSetting('centerOffset', [0 0], 'isReadOnly', true);
             obj.addConfigurationSetting('monitorRefreshRate', obj.stageClient.getMonitorRefreshRate(), 'isReadOnly', true);
+            obj.addConfigurationSetting('expectedRefreshRate', ip.Results.expectedRefreshRate, 'isReadOnly', true);
             obj.addConfigurationSetting('prerender', false, 'isReadOnly', true);
             obj.addConfigurationSetting('microdisplayBrightness', char(brightness), 'isReadOnly', true);
             obj.addConfigurationSetting('microdisplayBrightnessValue', uint8(brightness), 'isReadOnly', true);
@@ -88,6 +90,10 @@ classdef MicrodisplayDevice < symphonyui.core.Device
         
         function r = getMonitorRefreshRate(obj)
             r = obj.getConfigurationSetting('monitorRefreshRate');
+        end
+        
+        function r = getExpectedRefreshRate(obj)
+            r = obj.getConfigurationSetting('expectedRefreshRate');
         end
         
         function setPrerender(obj, tf)
