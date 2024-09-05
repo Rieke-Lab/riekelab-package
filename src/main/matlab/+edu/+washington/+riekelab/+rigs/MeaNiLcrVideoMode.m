@@ -11,7 +11,7 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             % Add the NiDAQ A/D board.
             daq = NiDaqController();
             obj.daqController = daq;
-            
+            % Black magic
             daq = obj.daqController;
             
             % Add the Multiclamp device (demo mode).
@@ -85,46 +85,16 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
                     {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}, ...
                     {0, 0.5305, 1.0502, 2.4253, 3.6195, 4.8356})}));
             
-            qCatch = [
-               5.184688757116199   0.989878332801999   0.008229213610837   0.145705079000616
-               9.159851013454308   5.957476307570245   0.013348490075679   4.331345172549151
-               1.224271638811880   1.133503831880406   6.080292576715589   6.361776042858103]*1e4*0.56;
-           
-           flux_paths('red')
-           paths = lightCrafter.getResource('fluxFactorPaths');
-           spectrum = lightCrafter.getResource('spectrum');
-           
-           
-           canComputeCatch = true;
-           m = containers.Map();
-            settings = paths.keys;
-            for k = 1:numel(settings)
-                setting = settings{k};
-                if exist(paths(setting), 'file')
-                    t = readtable(paths(setting), 'Format', '%s %s %f %f %f %f %s');
-                    t.date = datetime(t.date);
-                    t = sortrows(t, 'date', 'descend');
-                    m(setting) = t;
-                else
-                    disp('Warning: Flux factors not calibrated, cannot compute quantal catch.');
-                    canComputeCatch = false;
-                end
-            end
-            save('C:\Users\admin\Documents\MATLAB\lcr_stuff.mat','paths','spectrum','m');
+%             qCatch = [
+%                5.184688757116199   0.989878332801999   0.008229213610837   0.145705079000616
+%                9.159851013454308   5.957476307570245   0.013348490075679   4.331345172549151
+%                1.224271638811880   1.133503831880406   6.080292576715589   6.361776042858103]*1e4*0.56;
             
-            t(1,:).factor
-            t(1,:).diameter
-            t(1,:).intensity
-            
-            
-            
-           
-%             qCatch = zeros(3,4);
-%             names = {'red','green','blue'};
-%             for jj = 1 : length(names)
-%                 q = myspect(names{jj});
-%                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
-%             end
+            % Compute the quantal catch and add it to the rig config.
+            paths = lightCrafter.getResource('fluxFactorPaths');
+            spectrum = lightCrafter.getResource('spectrum');
+
+            qCatch = obj.computeCatch(paths, spectrum);
             
             lightCrafter.addResource('quantalCatch', qCatch);
             obj.addDevice(lightCrafter);
@@ -170,6 +140,48 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
             mea = manookinlab.devices.MEADevice(9001);
             obj.addDevice(mea);
+        end
+        
+        function quantalCatch = computeCatch(obj, paths, spectrum)
+            led_names = {'red','green','blue'};
+            quantalCatch = zeros(length(led_names),4);
+            canComputeCatch = true;
+            m = containers.Map();
+            settings = paths.keys;
+            for k = 1:numel(settings)
+                setting = settings{k};
+                if exist(paths(setting), 'file')
+                    t = readtable(paths(setting), 'Format', '%s %s %f %f %f %f %s');
+                    t.date = datetime(t.date);
+                    t = sortrows(t, 'date', 'descend');
+                    m(setting) = t;
+                else
+                    disp('Warning: Flux factors not calibrated, cannot compute quantal catch.');
+                    canComputeCatch = false;
+                end
+            end
+            if canComputeCatch
+                for ii = 1 : length(led_names)
+                    flashArea = (m(led_names{ii}).diameter(1)/2)^2 * pi;
+                    ledPower = m(led_names{ii}).power(1) * 1e-9;
+                    spect = spectrum(led_names{ii});
+                    wavelength = spect(:,1);
+                    energySpectrum = spect(:,2) / sum(spect(:,2));
+                    lambda = wavelength * 1e-9;
+
+                    quantalSpectrum = (energySpectrum * ledPower) .* lambda / (h*c);
+
+                    % Compute the Quantal catch.
+                    p = manookinlab.util.PhotoreceptorSpectrum( wavelength, [559 530 430 493],[cDensity*ones(1,3) rDensity]);
+                    photonFlux = quantalSpectrum' * p';
+                    fluxPerSqMicron = photonFlux / flashArea;
+                    qCatch = fluxPerSqMicron;
+
+                    qCatch(1:3) = qCatch(1:3) * coneArea;
+                    qCatch(4) = qCatch(4) * rodArea;
+                    quantalCatch(ii,:) = qCatch(:)';
+                end
+            end
         end
     end
 end
