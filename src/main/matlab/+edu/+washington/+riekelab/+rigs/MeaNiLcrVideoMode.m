@@ -45,21 +45,23 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
                 'ledCurrents',[10,7,30],...
                 'customLightEngine',true);
             
-            lightCrafter.addResource('fluxFactorPaths', containers.Map( ...
+            % Add the flux calibrations.
+            flux_paths = containers.Map( ...
                 {'auto', 'red', 'green', 'blue'}, { ...
                 riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_auto_flux_factors.txt'), ...
                 riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_red_flux_factors.txt'), ...
                 riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_green_flux_factors.txt'), ...
-                riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_blue_flux_factors.txt')}));
+                riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_blue_flux_factors.txt')});
+            lightCrafter.addResource('fluxFactorPaths', flux_paths);
             lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
+            % Add the projector spectra.
             myspect = containers.Map( ...
                 {'auto', 'red', 'green', 'blue'}, { ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_auto_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_red_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_green_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'lightcrafter_below_blue_spectrum.txt'))});
-            
             lightCrafter.addResource('spectrum', myspect);
             
             % Binding the lightCrafter to an unused stream only so its configuration settings are written to each epoch.
@@ -86,7 +88,43 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             qCatch = [
                5.184688757116199   0.989878332801999   0.008229213610837   0.145705079000616
                9.159851013454308   5.957476307570245   0.013348490075679   4.331345172549151
-               1.224271638811880   1.133503831880406   6.080292576715589   6.361776042858103]*1e4;
+               1.224271638811880   1.133503831880406   6.080292576715589   6.361776042858103]*1e4*0.56;
+           
+           flux_paths('red')
+           paths = lightCrafter.getResource('fluxFactorPaths');
+           spectrum = lightCrafter.getResource('spectrum');
+           
+           
+           canComputeCatch = true;
+           m = containers.Map();
+            settings = paths.keys;
+            for k = 1:numel(settings)
+                setting = settings{k};
+                if exist(paths(setting), 'file')
+                    t = readtable(paths(setting), 'Format', '%s %s %f %f %f %f %s');
+                    t.date = datetime(t.date);
+                    t = sortrows(t, 'date', 'descend');
+                    m(setting) = t;
+                else
+                    disp('Warning: Flux factors not calibrated, cannot compute quantal catch.');
+                    canComputeCatch = false;
+                end
+            end
+            save('C:\Users\admin\Documents\MATLAB\lcr_stuff.mat','paths','spectrum','m');
+            
+            t(1,:).factor
+            t(1,:).diameter
+            t(1,:).intensity
+            
+            
+            
+           
+%             qCatch = zeros(3,4);
+%             names = {'red','green','blue'};
+%             for jj = 1 : length(names)
+%                 q = myspect(names{jj});
+%                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
+%             end
             
             lightCrafter.addResource('quantalCatch', qCatch);
             obj.addDevice(lightCrafter);
