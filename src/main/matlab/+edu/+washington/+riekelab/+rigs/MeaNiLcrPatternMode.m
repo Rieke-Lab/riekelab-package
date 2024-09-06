@@ -69,10 +69,10 @@ classdef MeaNiLcrPatternMode < symphonyui.core.descriptions.RigDescription
                     {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}, ...
                     {0, 0.5305, 1.0502, 2.4253, 3.6195, 4.8356})}));
             
-            qCatch = [
-               5.184688757116199   0.989878332801999   0.008229213610837   0.145705079000616
-               9.159851013454308   5.957476307570245   0.013348490075679   4.331345172549151
-               1.224271638811880   1.133503831880406   6.080292576715589   6.361776042858103]*1e4*4;
+            % Compute the quantal catch and add it to the rig config.
+            paths = lightCrafter.getResource('fluxFactorPaths');
+            spectrum = lightCrafter.getResource('spectrum');
+            qCatch = manookinlab.util.computePhotoreceptorCatch(paths, spectrum, 'species', 'macaque') * 4;
             
             lightCrafter.addResource('quantalCatch', qCatch);
             obj.addDevice(lightCrafter);
