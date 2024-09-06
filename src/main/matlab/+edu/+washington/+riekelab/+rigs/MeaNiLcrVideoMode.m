@@ -145,6 +145,10 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
         function quantalCatch = computeCatch(obj, paths, spectrum)
             h = 6.62607015e-34; % Planck's constant in Joules/sec
             c = 2.99792458e8; % Speed of light in meters/sec
+            rDensity = 0.35; % Cone optical density.
+            cDensity = 0.17; % Rod optical density.
+            coneArea = 0.6; %0.6; %0.37; % Cone cross-sectional area (um^2)
+            rodArea = 1.7; % Rod cross-sectional area (um^2)
             led_names = {'red','green','blue'};
             quantalCatch = zeros(length(led_names),4);
             canComputeCatch = true;
