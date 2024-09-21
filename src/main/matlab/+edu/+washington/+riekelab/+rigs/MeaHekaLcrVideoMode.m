@@ -78,10 +78,17 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
                     {'FW00', 'FW05', 'FW10', 'FW20', 'FW30', 'FW40'}, ...
                     {0, 0.5305, 1.0502, 2.4253, 3.6195, 4.8356})}));
             
-            qCatch = [
-                0.369447881495107   0.070536240481100   0.000586393065682   0.010382577485673
-                1.496654228091196   0.973409075254781   0.002181047932008   0.707710863014727
-                0.154309237808581   0.142868712143260   0.766370210190195   0.801848855401907]*1e5;
+            % Compute the quantal catch and add it to the rig config.
+            paths = lightCrafter.getResource('fluxFactorPaths');
+            spectrum = lightCrafter.getResource('spectrum');
+            qCatch = manookinlab.util.computePhotoreceptorCatch(paths, spectrum, 'species', 'macaque');
+            
+            lightCrafter.addResource('quantalCatch', qCatch);
+            
+            %qCatch = [
+            %    0.369447881495107   0.070536240481100   0.000586393065682   0.010382577485673
+            %    1.496654228091196   0.973409075254781   0.002181047932008   0.707710863014727
+            %    0.154309237808581   0.142868712143260   0.766370210190195   0.801848855401907]*1e5;
                 
 %             qCatch = zeros(3,4);
 %             names = {'red','green_565','blue'};
@@ -89,8 +96,8 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
 %                 q = myspect(names{jj});
 %                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
 %             end
-            lightCrafter.addResource('quantalCatch', qCatch);
-            obj.addDevice(lightCrafter);
+            %lightCrafter.addResource('quantalCatch', qCatch);
+            %obj.addDevice(lightCrafter);
             
             % Add the frame monitor to record the timing of the monitor refresh.
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
