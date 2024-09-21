@@ -97,7 +97,7 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
 %                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
 %             end
             %lightCrafter.addResource('quantalCatch', qCatch);
-            %obj.addDevice(lightCrafter);
+            obj.addDevice(lightCrafter);
             
             % Add the frame monitor to record the timing of the monitor refresh.
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
