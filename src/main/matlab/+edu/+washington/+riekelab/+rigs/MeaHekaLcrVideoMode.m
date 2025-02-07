@@ -109,8 +109,9 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(trigger, 0);
             obj.addDevice(trigger);
             
-            % The 505 nm LED for stimulating channelrhodopsin.
-            green = UnitConvertingDevice('Green LED', 'V').bindStream(daq.getStream('ao2'));
+            % The 505 nm LED.
+            greenRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'mea', 'green_led_gamma_ramp.txt'));
+            green = CalibratedDevice('Green LED', Measurement.NORMALIZED, greenRamp(:, 1), greenRamp(:, 2)).bindStream(daq.getStream('ao2'));
             green.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'B1', 'B2', 'B3', 'B4', 'B5', 'B11'}));
             green.addResource('ndfAttenuations', containers.Map( ...
