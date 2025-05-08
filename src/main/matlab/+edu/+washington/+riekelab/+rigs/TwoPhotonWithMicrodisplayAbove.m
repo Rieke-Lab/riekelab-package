@@ -15,7 +15,7 @@ classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhoton
             ramps('medium')  = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'two_photon', 'microdisplay_above_medium_gamma_ramp.txt'));
             ramps('high')    = 65535 * importdata(riekelab.Package.getCalibrationResource('rigs', 'two_photon', 'microdisplay_above_high_gamma_ramp.txt'));
             ramps('maximum') = linspace(0, 65535, 256);
-            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1, 'comPort', 'COM3');
+            microdisplay = riekelab.devices.MicrodisplayDevice('gammaRamps', ramps, 'micronsPerPixel', 1, 'host', 'RIGB','comPort','COM4');
             microdisplay.bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(microdisplay, 15);
             microdisplay.addConfigurationSetting('ndfs', {}, ...
@@ -52,15 +52,7 @@ classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhoton
             frameMonitor = UnitConvertingDevice('Frame Monitor', 'V').bindStream(daq.getStream('ai7'));
             obj.addDevice(frameMonitor);
          
-            % Add the filter wheel.
-            filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM6');
-            
-            % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
-            daq = obj.daqController;
-            filterWheel.bindStream(daq.getStream('doport1'));
-            daq.getStream('doport1').setBitPosition(filterWheel, 15);
-            
-            obj.addDevice(filterWheel);
+
         end
         
     end

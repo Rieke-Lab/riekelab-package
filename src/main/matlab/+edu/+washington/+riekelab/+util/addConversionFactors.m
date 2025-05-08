@@ -15,7 +15,7 @@ function addConversionFactors(entity)
         orientation = getOrientation(entity.epochBlock.epochGroup);
         addConversionFactorsToEpoch(entity, deviceMap, photoreceptors, orientation);
     else
-        error('Entity must be a persistent experiment, epoch group, epoch block or epoch')
+        error('Entity must be a persistent experiment, epoch group, epoch block')
     end
 end
 

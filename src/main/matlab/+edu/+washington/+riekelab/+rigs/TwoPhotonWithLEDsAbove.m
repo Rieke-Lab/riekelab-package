@@ -76,7 +76,18 @@ classdef TwoPhotonWithLEDsAbove < symphonyui.core.descriptions.RigDescription
             
             trigger = UnitConvertingDevice('Oscilloscope Trigger', Measurement.UNITLESS).bindStream(daq.getStream('doport1'));
             daq.getStream('doport1').setBitPosition(trigger, 0);
-            obj.addDevice(trigger);        
+            obj.addDevice(trigger);  
+            
+                        % Add the filter wheel.
+            filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM3');
+            
+            % Binding the filter wheel to an unused stream only so its configuration settings are written to each epoch.
+            daq = obj.daqController;
+            filterWheel.bindStream(daq.getStream('doport1'));
+            daq.getStream('doport1').setBitPosition(filterWheel, 15);
+            
+            obj.addDevice(filterWheel);
+            
         end
         
     end
