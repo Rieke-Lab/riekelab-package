@@ -8,9 +8,11 @@ classdef SingleSpot < edu.washington.riekelab.protocols.RiekeLabStageProtocol
         tailTime = 250                  % Spot trailing duration (ms)
         spotIntensity = 1.0             % Spot light intensity (0-1)
         spotDiameter = 300              % Spot diameter size (um)
+        psth=true
         backgroundIntensity = 0.5       % Background light intensity (0-1)
         numberOfAverages = uint16(5)    % Number of epochs
         interpulseInterval = 0          % Duration between spots (s)
+        
     end
     
     properties (Hidden)
@@ -41,7 +43,7 @@ classdef SingleSpot < edu.washington.riekelab.protocols.RiekeLabStageProtocol
             obj.showFigure('manookinlab.figures.ProgressFigure', obj.numberOfAverages);
             
             obj.showFigure('symphonyui.builtin.figures.ResponseFigure', obj.rig.getDevice(obj.amp));
-            obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp));
+            obj.showFigure('edu.washington.riekelab.figures.MeanResponseFigure', obj.rig.getDevice(obj.amp), 'psth',obj.psth);
             obj.showFigure('edu.washington.riekelab.figures.FrameTimingFigure', obj.rig.getDevice('Stage'), obj.rig.getDevice('Frame Monitor'));
         end
         

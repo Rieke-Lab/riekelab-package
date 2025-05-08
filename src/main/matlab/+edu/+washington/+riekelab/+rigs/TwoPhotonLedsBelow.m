@@ -1,8 +1,8 @@
-classdef TwoPhoton < symphonyui.core.descriptions.RigDescription
+classdef TwoPhotonLedsBelow < symphonyui.core.descriptions.RigDescription
     
     methods
         
-        function obj = TwoPhoton()
+        function obj = TwoPhotonLedsBelow()
             import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
