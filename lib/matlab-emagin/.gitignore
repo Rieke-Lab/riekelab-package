@@ -1,0 +1,9 @@
+# Matlab autosave files
+*.asv
+
+# OS X stores
+*.DS_Store
+
+# Object files
+*.o
+*.obj
