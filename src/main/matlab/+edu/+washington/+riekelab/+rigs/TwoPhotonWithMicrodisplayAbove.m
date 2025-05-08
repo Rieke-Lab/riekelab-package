@@ -1,4 +1,4 @@
-classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhotonWithLEDsAbove
+classdef TwoPhotonWithMicrodisplayAbove < edu.washington.riekelab.rigs.TwoPhotonWithLedsAbove
     
     methods
         

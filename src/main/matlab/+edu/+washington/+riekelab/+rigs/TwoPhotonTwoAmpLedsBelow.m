@@ -1,8 +1,8 @@
-classdef TwoPhotonTwoAmp < edu.washington.riekelab.rigs.TwoPhoton
+classdef TwoPhotonTwoAmpLedsBelow < edu.washington.riekelab.rigs.TwoPhotonLedsBelow
     
     methods
         
-        function obj = TwoPhotonTwoAmp()
+        function obj = TwoPhotonTwoAmpLedsBelow()
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
             
