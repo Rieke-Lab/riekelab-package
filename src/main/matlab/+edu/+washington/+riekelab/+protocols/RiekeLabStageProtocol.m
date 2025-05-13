@@ -25,6 +25,12 @@ classdef (Abstract) RiekeLabStageProtocol < edu.washington.riekelab.protocols.Ri
             if ~isempty(redSync)
                 epoch.addResponse(redSync{1});
             end
+            
+            projector_gain = obj.rig.getDevices('Projector Gain');
+            if ~isempty(projector_gain)
+                projector_gain{1}.background = symphonyui.core.Measurement(1, projector_gain{1}.background.displayUnits);
+                projector_gain{1}.applyBackground();
+            end
         end
         
         function controllerDidStartHardware(obj)
