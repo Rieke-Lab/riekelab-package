@@ -39,14 +39,14 @@ classdef ProjectorGainGenerator < symphonyui.core.StimulusGenerator
             
             % Set the gain values.
             data = ones(1, prePts + stimPts + tailPts);
-            for ii = 1 : length(obj.gain_values)
+            for ii = 1 : length(obj.gainValues)
                 idx = prePts + ( round((ii-1)*stepPts) : round(ii*stepPts) );
                 data(idx) = obj.gainValues( ii );
             end
+            data = data(prePts + stimPts + tailPts);
+            data(end)=1;
             
             % Clip signal to upper and lower limit.
-            % NOTE: IF THERE ARE POINTS THAT ARE ACTUALLY OUT OF BOUNDS, THIS WILL MAKE IT SO THAT THE EXPECTATION OF 
-            % THE STANDARD DEVIATION IS NO LONGER WHAT WAS SPECIFIED...
             data(data > obj.upperLimit) = obj.upperLimit;
             data(data < obj.lowerLimit) = obj.lowerLimit;
             
