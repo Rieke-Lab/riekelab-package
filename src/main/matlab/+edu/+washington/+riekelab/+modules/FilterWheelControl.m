@@ -81,8 +81,15 @@ classdef FilterWheelControl < symphonyui.ui.Module
     
     methods (Access = private)
         function populateNdfSettingList(obj)
-            ndfNums = {0.0, 0.5, 1.0, 2.0, 3.0, 4.0};
-            ndfs = {'0.0', '0.5', '1.0', '2.0', '3.0', '4.0'}; 
+(*             ndfNums = {0.0, 0.5, 1.0, 2.0, 3.0, 4.0};
+            ndfs = {'0.0', '0.5', '1.0', '2.0', '3.0', '4.0'};  *)
+            ndfValues = obj.filterWheel.getNdfValues();
+            ndfNums = cell(size(ndfValues));
+            ndfs = cell(size(ndfValues));
+            for ii = 1 : length(ndfValues)
+                ndfNums{ii} = ndfValues(ii);
+                ndfs{ii} = num2str(ndfValues(ii));
+            end
             
             set(obj.ndfSettingPopupMenu, 'String', ndfs);
             set(obj.ndfSettingPopupMenu, 'Values', ndfNums);
