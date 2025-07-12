@@ -28,7 +28,7 @@ classdef FilterWheelDevice < symphonyui.core.Device
             obj.addConfigurationSetting('NDF', 4.0);
             obj.ndfValues = ip.Results.ndfValues;
 
-            obj.setReadOnlyConfigurationSetting('ndfValues', obj.ndfValues);
+            obj.addConfigurationSetting('ndfValues', obj.ndfValues);
 
             % Try to connect.
             obj.connect(ip.Results.comPort);
