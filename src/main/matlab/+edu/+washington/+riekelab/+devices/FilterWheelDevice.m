@@ -8,7 +8,7 @@ classdef FilterWheelDevice < symphonyui.core.Device
     
     properties (Access = private)
         filterWheel
-        ndfValues = [0 0.5 1.0 2.0 3.0 4.0];
+        ndfValues % = [0 0.5 1.0 2.0 3.0 4.0];
         isOpen
     end
     
@@ -18,6 +18,7 @@ classdef FilterWheelDevice < symphonyui.core.Device
             ip = inputParser();
             ip.addParameter('comPort', 'COM13', @ischar);
             ip.addParameter('NDF', 4.0, @isnumeric);
+            ip.addParameter('ndfValues', [0 0.5 1.0 2.0 3.0 4.0], @isnumeric);
             ip.parse(varargin{:});
             
             cobj = Symphony.Core.UnitConvertingExternalDevice('FilterWheel', 'ThorLabs', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
@@ -25,6 +26,7 @@ classdef FilterWheelDevice < symphonyui.core.Device
             obj.cobj.MeasurementConversionTarget = symphonyui.core.Measurement.UNITLESS;
             
             obj.addConfigurationSetting('NDF', 4.0);
+            obj.ndfValues = ip.Results.ndfValues;
 
             % Try to connect.
             obj.connect(ip.Results.comPort);
