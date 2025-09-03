@@ -87,6 +87,12 @@ classdef MeaNiLcrPatternMode < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport0').setBitPosition(trigger, 0);
             obj.addDevice(trigger);
             
+            % Gain controller device for LCR LEDs.
+            gainRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'projector_led_gain_gamma_ramp.txt'));
+%             gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 1), gainRamp(:, 2)).bindStream(daq.getStream('ao1'));
+            gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 2), gainRamp(:, 1)).bindStream(daq.getStream('ao1'));
+            obj.addDevice(gain_device);
+            
             % Add the filter wheel.
             filterWheel = edu.washington.riekelab.devices.FilterWheelDevice('comPort', 'COM5');
             
