@@ -36,6 +36,8 @@ classdef ProjectorGainGenerator < symphonyui.core.StimulusGenerator
             stimPts = timeToPts(obj.stimTime);
             tailPts = timeToPts(obj.tailTime);
             stepPts = timeToPts(obj.stepDurations); 
+
+            stepPts = round(stepPts);
             
             % Set the gain values.
             data = ones(1, prePts + stimPts + tailPts);
@@ -49,7 +51,7 @@ classdef ProjectorGainGenerator < symphonyui.core.StimulusGenerator
             end
             data = data(1 : prePts + stimPts + tailPts);
             % Force the gain device to go high at beginning and end for the frame monitor.
-            data(1 : 33/1000.0*obj.sampleRate) = obj.upperLimit;
+            data(1 : round(33/1000.0*obj.sampleRate)) = obj.upperLimit;
             data(end)=obj.upperLimit;
             
             % Clip signal to upper and lower limit.
