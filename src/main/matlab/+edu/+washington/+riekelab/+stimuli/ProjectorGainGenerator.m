@@ -6,7 +6,7 @@ classdef ProjectorGainGenerator < symphonyui.core.StimulusGenerator
         preTime             % Leading duration (ms)
         stimTime            % Noise duration (ms)
         tailTime            % Trailing duration (ms)
-        stepDuration        % Duration of gain step (ms)
+        stepDurations        % Duration of gain step (ms)
         gainValues          % Mean amplitude (units)
         upperLimit = 1.8    % Upper bound on signal, signal is clipped to this value (units)
         lowerLimit = -1.8   % Lower bound on signal, signal is clipped to this value (units)
@@ -35,16 +35,22 @@ classdef ProjectorGainGenerator < symphonyui.core.StimulusGenerator
             prePts = timeToPts(obj.preTime);
             stimPts = timeToPts(obj.stimTime);
             tailPts = timeToPts(obj.tailTime);
-            stepPts = timeToPts(obj.stepDuration); %obj.stepDuration * 1e-3 * obj.sampleRate;
+            stepPts = timeToPts(obj.stepDurations); 
             
             % Set the gain values.
             data = ones(1, prePts + stimPts + tailPts);
             for ii = 1 : length(obj.gainValues)
-                idx = prePts + ( round((ii-1)*stepPts) : round(ii*stepPts) );
+                if ii == 1
+                    idx = 1 : stepPts(1);
+                else
+                    idx = sum(stepPts(1:ii-1)) + (1:stepPts(ii)); 
+                end
                 data(idx) = obj.gainValues( ii );
             end
             data = data(1 : prePts + stimPts + tailPts);
-            data(end)=1;
+            % Force the gain device to go high at beginning and end for the frame monitor.
+            data(1 : 33/1000.0*obj.sampleRate) = obj.upperLimit;
+            data(end)=obj.upperLimit;
             
             % Clip signal to upper and lower limit.
             data(data > obj.upperLimit) = obj.upperLimit;
