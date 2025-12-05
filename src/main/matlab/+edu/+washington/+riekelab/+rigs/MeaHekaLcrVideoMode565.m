@@ -1,8 +1,8 @@
-classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
+classdef MeaHekaLcrVideoMode565 < symphonyui.core.descriptions.RigDescription
     
     methods
         
-        function obj = MeaHekaLcrVideoMode()
+        function obj = MeaHekaLcrVideoMode565()
             import symphonyui.builtin.daqs.*;
             import symphonyui.builtin.devices.*;
             import symphonyui.core.*;
@@ -42,17 +42,17 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
             
             lightCrafter.addResource('fluxFactorPaths', containers.Map( ...
                 {'auto', 'red', 'green', 'blue'}, { ...
-                riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_auto_flux_factors.txt'), ...
+                riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_auto565_flux_factors.txt'), ...
                 riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_red_flux_factors.txt'), ...
-                riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_green_flux_factors.txt'), ...
+                riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_green565_flux_factors.txt'), ...
                 riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_blue_flux_factors.txt')}));
             lightCrafter.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
             
             myspect = containers.Map( ...
                 {'auto', 'red', 'green', 'blue'}, { ...
-                importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_auto_spectrum.txt')), ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_auto565_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_red_spectrum.txt')), ...
-                importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_green_spectrum.txt')), ...
+                importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_green565_spectrum.txt')), ...
                 importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'lightcrafter_below_blue_spectrum.txt'))});
             
             lightCrafter.addResource('spectrum', myspect);
@@ -110,7 +110,7 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
             obj.addDevice(trigger);
             
             % The 505 nm LED.
-            greenRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'confocal', 'green_led_gamma_ramp.txt'));
+            greenRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'green_led_gamma_ramp.txt'));
             green = CalibratedDevice('Green LED', Measurement.NORMALIZED, greenRamp(:, 1), greenRamp(:, 2)).bindStream(daq.getStream('ao2'));
             green.addConfigurationSetting('ndfs', {}, ...
                 'type', PropertyType('cellstr', 'row', {'C1', 'C2', 'C3', 'C4', 'C5'}));
@@ -121,11 +121,11 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
                 'type', PropertyType('char', 'row', {'', 'low', 'medium', 'high'}));
             green.addResource('fluxFactorPaths', containers.Map( ...
                 {'low', 'medium', 'high'}, { ...
-                riekelab.Package.getCalibrationResource('rigs', 'confocal', 'green_led_low_flux_factors.txt'), ...
-                riekelab.Package.getCalibrationResource('rigs', 'confocal', 'green_led_medium_flux_factors.txt'), ...
-                riekelab.Package.getCalibrationResource('rigs', 'confocal', 'green_led_high_flux_factors.txt')}));
+                riekelab.Package.getCalibrationResource('rigs', 'suction', 'green_led_low_flux_factors.txt'), ...
+                riekelab.Package.getCalibrationResource('rigs', 'suction', 'green_led_medium_flux_factors.txt'), ...
+                riekelab.Package.getCalibrationResource('rigs', 'suction', 'green_led_high_flux_factors.txt')}));
             green.addConfigurationSetting('lightPath', 'below', 'isReadOnly', true);
-            green.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'confocal', 'green_led_spectrum.txt')));
+            green.addResource('spectrum', importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'green_led_spectrum.txt')));
             obj.addDevice(green);
             
             % Add the filter wheel.
@@ -136,10 +136,10 @@ classdef MeaHekaLcrVideoMode < symphonyui.core.descriptions.RigDescription
             daq.getStream('doport1').setBitPosition(filterWheel, 14);
             obj.addDevice(filterWheel);
 
-            % Add the SPDT switch to control the LEDs.
-%             led_switch = riekelab.devices.LedSPDTDevice('comPort', 'COM6', 'ledNames', {'Green_570nm','Green_505nm'});
-%             daq.getStream('doport1').setBitPosition(led_switch, 13);
-%             obj.addDevice(led_switch);
+            % Gain controller device for LCR LEDs.
+            gainRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'suction', 'projector_led_gain_gamma_ramp.txt'));
+            gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 1), gainRamp(:, 2)).bindStream(daq.getStream('ao3'));
+            obj.addDevice(gain_device);
             
             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
