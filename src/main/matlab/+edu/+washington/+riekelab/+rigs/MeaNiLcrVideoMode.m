@@ -104,10 +104,10 @@ classdef MeaNiLcrVideoMode < symphonyui.core.descriptions.RigDescription
             obj.addDevice(trigger);
             
             % Gain controller device for LCR LEDs.
-%             gainRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'projector_led_gain_gamma_ramp.txt'));
-%             gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 1), gainRamp(:, 2)).bindStream(daq.getStream('ao1'));
+            gainRamp = importdata(riekelab.Package.getCalibrationResource('rigs', 'tiny_mea', 'projector_led_gain_gamma_ramp.txt'));
+            gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 1), gainRamp(:, 2)).bindStream(daq.getStream('ao1'));
 %             gain_device = CalibratedDevice('Projector Gain', Measurement.NORMALIZED, gainRamp(:, 2), gainRamp(:, 1)).bindStream(daq.getStream('ao1'));
-            gain_device = UnitConvertingDevice('Projector Gain', 'V').bindStream(daq.getStream('ao1'));
+%             gain_device = UnitConvertingDevice('Projector Gain', 'V').bindStream(daq.getStream('ao1'));
             obj.addDevice(gain_device);
             
 %             % Add the high-intensity green LED for stimulating
