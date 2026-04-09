@@ -915,7 +915,22 @@ classdef DeviceCalibrator < symphonyui.ui.Module
 
                 spot = stage.builtin.stimuli.Ellipse(); %#ok<PROPLC>
                 spot.position = device.getCanvasSize()/2;
-                spot.color = intensity;
+
+                % Set spot color based on the device setting.
+                % For 'red', 'green', 'blue': use the corresponding RGB color
+                % scaled by intensity. For 'auto', 'white', or anything else:
+                % use white (grayscale intensity).
+                switch lower(setting)
+                    case 'red'
+                        spot.color = [intensity 0 0];
+                    case 'green'
+                        spot.color = [0 intensity 0];
+                    case 'blue'
+                        spot.color = [0 0 intensity];
+                    otherwise  % 'auto', 'white', 'none', etc.
+                        spot.color = intensity;
+                end
+                
                 spot.radiusX = device.um2pix(diameter/2);
                 spot.radiusY = device.um2pix(diameter/2);
                 p.addStimulus(spot);

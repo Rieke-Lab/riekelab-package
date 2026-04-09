@@ -26,6 +26,11 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
                 epoch.addResponse(wvfrm{1});
             end
             
+%             optometer = obj.rig.getDevices('Optometer');
+%             if ~isempty(optometer)
+%                 epoch.addResponse(optometer{1});
+%             end
+            
             % This is for the MEA setup. Check if this is an MEA rig on the
             % first epoch.
             if ~obj.startedRun
