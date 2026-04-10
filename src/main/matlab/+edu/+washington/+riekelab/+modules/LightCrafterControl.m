@@ -4,7 +4,9 @@ classdef LightCrafterControl < symphonyui.ui.Module
         log
         settings
         lightCrafter
+        modePopupMenu
         ledEnablesCheckboxes
+        patternRateLabel
         patternRatePopupMenu
         centerOffsetFields
         prerenderCheckbox
@@ -20,24 +22,29 @@ classdef LightCrafterControl < symphonyui.ui.Module
         
         function createUi(obj, figureHandle)
             import appbox.*;
-            
+
             set(figureHandle, ...
                 'Name', 'LightCrafter Control', ...
-                'Position', screenCenter(350, 170), ...
+                'Position', screenCenter(350, 200), ...
                 'Resize', 'off');
-            
+
             mainLayout = uix.HBox( ...
                 'Parent', figureHandle, ...
                 'Padding', 11, ...
                 'Spacing', 7);
-            
+
             lightCrafterLayout = uix.Grid( ...
                 'Parent', mainLayout, ...
                 'Spacing', 7);
+
+            % Column 1: labels (in row order)
+            Label( ...
+                'Parent', lightCrafterLayout, ...
+                'String', 'Mode:');
             Label( ...
                 'Parent', lightCrafterLayout, ...
                 'String', 'LED enables:');
-            Label( ...
+            obj.patternRateLabel = Label( ...
                 'Parent', lightCrafterLayout, ...
                 'String', 'Pattern rate:');
             Label( ...
@@ -49,6 +56,14 @@ classdef LightCrafterControl < symphonyui.ui.Module
             Label( ...
                 'Parent', lightCrafterLayout, ...
                 'String', 'LCR LED currents:');
+
+            % Column 2: controls (in row order)
+            obj.modePopupMenu = MappedPopupMenu( ...
+                'Parent', lightCrafterLayout, ...
+                'String', {'Pattern', 'Video'}, ...
+                'HorizontalAlignment', 'left', ...
+                'Callback', @obj.onSelectedMode);
+            set(obj.modePopupMenu, 'Values', {'pattern', 'video'});
             ledEnablesLayout = uix.HBox( ...
                 'Parent', lightCrafterLayout, ...
                 'Spacing', 3);
@@ -106,7 +121,7 @@ classdef LightCrafterControl < symphonyui.ui.Module
                 'Style', 'checkbox', ...
                 'String', '', ...
                 'Callback', @obj.onSelectedPrerender);
-            
+
             % Led currents
             currentsLayout = uix.HBox( ...
                 'Parent', lightCrafterLayout, ...
@@ -137,10 +152,10 @@ classdef LightCrafterControl < symphonyui.ui.Module
                 'String', 'B');
             set(currentsLayout, ...
                 'Widths', [-1 8+5 -1 8+5 -1 8]);
-            
+
             set(lightCrafterLayout, ...
                 'Widths', [100 -1], ...
-                'Heights', [23 23 23 23 23]);
+                'Heights', [23 23 23 23 23 23]);
         end
         
     end
@@ -154,12 +169,14 @@ classdef LightCrafterControl < symphonyui.ui.Module
             end
             
             obj.lightCrafter = devices{1};
-            
+
+            obj.populateMode();
             obj.populateLedEnables();
             obj.populatePatternRateList();
             obj.populateCenterOffset();
             obj.populatePrerender();
             obj.populateLedCurrents();
+            obj.updatePatternRateEnabled();
             
             try
                 obj.loadSettings();
@@ -196,13 +213,38 @@ classdef LightCrafterControl < symphonyui.ui.Module
             obj.lightCrafter.setLedEnables(auto, red, green, blue);
         end
         
+        function populateMode(obj)
+            set(obj.modePopupMenu, 'Value', obj.lightCrafter.getMode());
+        end
+
+        function onSelectedMode(obj, ~, ~)
+            mode = get(obj.modePopupMenu, 'Value');
+            obj.lightCrafter.setMode(mode);
+            obj.populatePatternRateList();
+            obj.updatePatternRateEnabled();
+        end
+
+        function updatePatternRateEnabled(obj)
+            isPattern = strcmp(obj.lightCrafter.getMode(), 'pattern');
+            if isPattern
+                set(obj.patternRatePopupMenu, 'Enable', 'on');
+            else
+                set(obj.patternRatePopupMenu, 'Enable', 'off');
+            end
+        end
+
         function populatePatternRateList(obj)
             rates = obj.lightCrafter.availablePatternRates();
-            names = cellfun(@(r)[num2str(r) ' Hz'], rates, 'UniformOutput', false); 
-            
+            if isempty(rates)
+                set(obj.patternRatePopupMenu, 'String', {'N/A'});
+                set(obj.patternRatePopupMenu, 'Values', {0});
+                return;
+            end
+            names = cellfun(@(r)[num2str(r) ' Hz'], rates, 'UniformOutput', false);
+
             set(obj.patternRatePopupMenu, 'String', names);
             set(obj.patternRatePopupMenu, 'Values', rates);
-            
+
             set(obj.patternRatePopupMenu, 'Value', obj.lightCrafter.getPatternRate());
         end
         

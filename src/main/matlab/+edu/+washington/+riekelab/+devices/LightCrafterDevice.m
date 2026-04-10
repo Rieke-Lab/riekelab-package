@@ -1,4 +1,8 @@
 classdef LightCrafterDevice < symphonyui.core.Device
+
+    properties
+        mode
+    end
     
     properties (Access = private, Transient)
         stageClient
@@ -16,12 +20,17 @@ classdef LightCrafterDevice < symphonyui.core.Device
             ip = inputParser();
             ip.addParameter('host', 'localhost', @ischar);
             ip.addParameter('port', 5678, @isnumeric);
+            ip.addParameter('mode','pattern', @ischar);
             ip.addParameter('micronsPerPixel', @isnumeric);
             ip.addParameter('ledCurrents',[], @isnumeric);
             ip.addParameter('customLightEngine', false, @islogical);
             ip.addParameter('expectedRefreshRate',59.94, @isnumeric);
             ip.addParameter('local_movie_directory','C:\Users\Public\Documents\GitRepos\Symphony2\movies\', @ischar);
             ip.addParameter('stage_movie_directory','C:\Users\Public\Documents\GitRepos\Symphony2\movies\', @ischar);
+            ip.addParameter('gammaRamps', containers.Map( ...
+                {'red', 'green', 'blue'}, ...
+                {linspace(0, 65535, 256), linspace(0, 65535, 256), linspace(0, 65535, 256)}), ...
+                @(r)isa(r, 'containers.Map'));
             ip.parse(varargin{:});
             
             cobj = Symphony.Core.UnitConvertingExternalDevice(['LightCrafter Stage@' ip.Results.host], 'Texas Instruments', Symphony.Core.Measurement(0, symphonyui.core.Measurement.UNITLESS));
@@ -37,10 +46,21 @@ classdef LightCrafterDevice < symphonyui.core.Device
             
             obj.stageClient.setCanvasProjectionIdentity();
             obj.stageClient.setCanvasProjectionOrthographic(0, canvasSize(1), 0, canvasSize(2));
+
+            % Parse the mode: 'pattern' or 'video'
+            if strcmpi(ip.Results.mode, 'pattern')
+                obj.mode = 'pattern';
+            else
+                obj.mode = 'video';
+                obj.stageClient.setMonitorGammaRamp(...
+                    ip.Results.gammaRamps('red'),...
+                    ip.Results.gammaRamps('green'), ...
+                    ip.Results.gammaRamps('blue'));
+            end
             
             obj.lightCrafter = LightCrafter4500(obj.stageClient.getMonitorRefreshRate());
             obj.lightCrafter.connect();
-            obj.lightCrafter.setMode('pattern');
+            obj.lightCrafter.setMode( obj.mode );
             obj.lightCrafter.setLedEnables(true, false, false, false);
             [auto, red, green, blue] = obj.lightCrafter.getLedEnables();
             
@@ -57,21 +77,25 @@ classdef LightCrafterDevice < symphonyui.core.Device
             [red_current, green_current, blue_current] = obj.lightCrafter.getLedCurrents();
             
             refreshRate = obj.stageClient.getMonitorRefreshRate();
-            obj.patternRatesToAttributes = containers.Map('KeyType', 'double', 'ValueType', 'any');
-            obj.patternRatesToAttributes(1 * refreshRate)  = {8, 'white', 1};
-            obj.patternRatesToAttributes(2 * refreshRate)  = {8, 'white', 2};
-            obj.patternRatesToAttributes(4 * refreshRate)  = {6, 'white', 4};
-            obj.patternRatesToAttributes(6 * refreshRate)  = {4, 'white', 6};
-            obj.patternRatesToAttributes(8 * refreshRate)  = {3, 'white', 8};
-            obj.patternRatesToAttributes(12 * refreshRate) = {2, 'white', 12};
-            obj.patternRatesToAttributes(24 * refreshRate) = {1, 'white', 24};
             
-            attributes = obj.patternRatesToAttributes(refreshRate);
-            obj.lightCrafter.setPatternAttributes(attributes{:});
+            if strcmpi(obj.mode, 'pattern')
+                obj.patternRatesToAttributes = containers.Map('KeyType', 'double', 'ValueType', 'any');
+                obj.patternRatesToAttributes(1 * refreshRate)  = {8, 'white', 1};
+                obj.patternRatesToAttributes(2 * refreshRate)  = {8, 'white', 2};
+                obj.patternRatesToAttributes(4 * refreshRate)  = {6, 'white', 4};
+                obj.patternRatesToAttributes(6 * refreshRate)  = {4, 'white', 6};
+                obj.patternRatesToAttributes(8 * refreshRate)  = {3, 'white', 8};
+                obj.patternRatesToAttributes(12 * refreshRate) = {2, 'white', 12};
+                obj.patternRatesToAttributes(24 * refreshRate) = {1, 'white', 24};
             
-            renderer = stage.builtin.renderers.PatternRenderer(attributes{3}, attributes{1});
-            obj.stageClient.setCanvasRenderer(renderer);
+                attributes = obj.patternRatesToAttributes(refreshRate);
+                obj.lightCrafter.setPatternAttributes(attributes{:});
+                
+                renderer = stage.builtin.renderers.PatternRenderer(attributes{3}, attributes{1});
+                obj.stageClient.setCanvasRenderer(renderer);
+            end
             
+            obj.addConfigurationSetting('mode', ip.Results.mode, 'isReadOnly', true); % Mode: 'pattern' or 'video'
             obj.addConfigurationSetting('local_movie_directory', ip.Results.local_movie_directory, 'isReadOnly', true);
             obj.addConfigurationSetting('stage_movie_directory', ip.Results.stage_movie_directory, 'isReadOnly', true);
             obj.addConfigurationSetting('canvasSize', canvasSize, 'isReadOnly', true);
@@ -82,8 +106,13 @@ classdef LightCrafterDevice < symphonyui.core.Device
             obj.addConfigurationSetting('expectedRefreshRate', ip.Results.expectedRefreshRate, 'isReadOnly', true);
             obj.addConfigurationSetting('prerender', false, 'isReadOnly', true);
             obj.addConfigurationSetting('lightCrafterLedEnables',  [auto, red, green, blue], 'isReadOnly', true);
-            obj.addConfigurationSetting('lightCrafterPatternRate', obj.lightCrafter.currentPatternRate(), 'isReadOnly', true);
+            if strcmpi(obj.mode, 'pattern')
+                obj.addConfigurationSetting('lightCrafterPatternRate', obj.lightCrafter.currentPatternRate(), 'isReadOnly', true);
+            else
+                obj.addConfigurationSetting('lightCrafterPatternRate', 0, 'isReadOnly', true);
+            end
             obj.addConfigurationSetting('micronsPerPixel', ip.Results.micronsPerPixel, 'isReadOnly', true);
+            obj.addResource('gammaRamps', ip.Results.gammaRamps);
         end
         
         function close(obj)
@@ -164,7 +193,9 @@ classdef LightCrafterDevice < symphonyui.core.Device
             else
                 player = stage.builtin.players.RealtimePlayer(presentation);
             end
-            player.setCompositor(stage.builtin.compositors.PatternCompositor());
+            if strcmp(obj.mode, 'pattern')
+                player.setCompositor(stage.builtin.compositors.PatternCompositor());
+            end
             obj.stageClient.play(player);
         end
         
@@ -217,7 +248,59 @@ classdef LightCrafterDevice < symphonyui.core.Device
             obj.setReadOnlyConfigurationSetting('lightCrafterLedCurrents', [red, green, blue]);
         end
         
+        function setMode(obj, newMode)
+            % Switch between 'pattern' and 'video' mode at runtime.
+            newMode = lower(newMode);
+            if strcmp(obj.mode, newMode)
+                return;
+            end
+
+            obj.lightCrafter.setMode(newMode);
+            obj.mode = newMode;
+
+            if strcmp(newMode, 'pattern')
+                % Restore pattern renderer and attributes at the current refresh rate.
+                obj.stageClient.setMonitorGamma(1);
+                refreshRate = obj.stageClient.getMonitorRefreshRate();
+                if isempty(obj.patternRatesToAttributes)
+                    obj.patternRatesToAttributes = containers.Map('KeyType', 'double', 'ValueType', 'any');
+                    obj.patternRatesToAttributes(1 * refreshRate)  = {8, 'white', 1};
+                    obj.patternRatesToAttributes(2 * refreshRate)  = {8, 'white', 2};
+                    obj.patternRatesToAttributes(4 * refreshRate)  = {6, 'white', 4};
+                    obj.patternRatesToAttributes(6 * refreshRate)  = {4, 'white', 6};
+                    obj.patternRatesToAttributes(8 * refreshRate)  = {3, 'white', 8};
+                    obj.patternRatesToAttributes(12 * refreshRate) = {2, 'white', 12};
+                    obj.patternRatesToAttributes(24 * refreshRate) = {1, 'white', 24};
+                end
+                attributes = obj.patternRatesToAttributes(refreshRate);
+                obj.lightCrafter.setPatternAttributes(attributes{:});
+                renderer = stage.builtin.renderers.PatternRenderer(attributes{3}, attributes{1});
+                obj.stageClient.setCanvasRenderer(renderer);
+                obj.setReadOnlyConfigurationSetting('lightCrafterPatternRate', obj.lightCrafter.currentPatternRate());
+            else
+                % Video mode: apply gamma ramps and remove the pattern renderer.
+                try
+                    gammaRamps = obj.getResource('gammaRamps');
+                    obj.stageClient.setMonitorGammaRamp( ...
+                        gammaRamps('red'), gammaRamps('green'), gammaRamps('blue'));
+                catch
+                    obj.stageClient.setMonitorGamma(1);
+                end
+                obj.stageClient.resetCanvasRenderer();
+                obj.setReadOnlyConfigurationSetting('lightCrafterPatternRate', 0);
+            end
+            obj.setReadOnlyConfigurationSetting('mode', newMode);
+        end
+
+        function m = getMode(obj)
+            m = obj.mode;
+        end
+
         function r = availablePatternRates(obj)
+            if ~strcmp(obj.mode, 'pattern') || isempty(obj.patternRatesToAttributes)
+                r = {};
+                return;
+            end
             r = obj.patternRatesToAttributes.keys;
         end
         
