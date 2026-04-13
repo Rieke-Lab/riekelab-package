@@ -920,6 +920,7 @@ classdef DeviceCalibrator < symphonyui.ui.Module
                 % For 'red', 'green', 'blue': use the corresponding RGB color
                 % scaled by intensity. For 'auto', 'white', or anything else:
                 % use white (grayscale intensity).
+                disp(['Stage setting is: ',lower(setting)]);
                 switch lower(setting)
                     case 'red'
                         spot.color = [intensity 0 0];
