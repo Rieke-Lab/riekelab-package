@@ -175,7 +175,8 @@ classdef MeaHekaLcrVideoMode565 < symphonyui.core.descriptions.RigDescription
             
             % Add the MEA device controller. This waits for the stream from Vision, strips of the header, and runs the block.
 %             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
-            mea = manookinlab.devices.MEADevice(9001);
+            mea = manookinlab.devices.MEADevice(9001); % Non-streaming
+%             mea = manookinlab.devices.VisionCommDevice(9002); % Streaming
             obj.addDevice(mea);
         end
     end
