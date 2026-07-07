@@ -40,24 +40,28 @@ classdef FilterWheelDevice < symphonyui.core.Device
         end
         
         function connect(obj, comPort)
-            try 
-                obj.filterWheel = serial(comPort, 'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Terminator', 'CR');
-                fopen(obj.filterWheel);
+            try
+                obj.filterWheel = serialport(comPort, 115200, ...
+                    'DataBits', 8, 'StopBits', 1, 'Timeout', 5);
+                configureTerminator(obj.filterWheel, 'CR');
                 obj.isOpen = true;
             catch
                 obj.isOpen = false;
             end
         end
-        
+
         function close(obj)
             if obj.isOpen
-                fclose(obj.filterWheel);
+                try
+                    delete(obj.filterWheel);
+                catch
+                end
                 obj.isOpen = false;
             end
         end
-        
+
         function moveWheel(obj, position)
-            fprintf(obj.filterWheel, ['pos=', num2str(position), '\n']);
+            writeline(obj.filterWheel, ['pos=' num2str(position)]);
             obj.wheelPosition = position;
         end
         
@@ -81,8 +85,8 @@ classdef FilterWheelDevice < symphonyui.core.Device
         
         function position = getCurrentPosition(obj)
             if obj.isOpen
-                fprintf(obj.filterWheel, 'pos=?\n');
-                position = fscanf(obj.filterWheel);
+                writeline(obj.filterWheel, 'pos=?');
+                position = readline(obj.filterWheel);
             end
         end
     end

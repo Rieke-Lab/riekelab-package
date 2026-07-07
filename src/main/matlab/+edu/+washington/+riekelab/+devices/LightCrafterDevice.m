@@ -305,6 +305,9 @@ classdef LightCrafterDevice < symphonyui.core.Device
         end
         
         function setPatternRate(obj, rate)
+            if ~strcmp(obj.mode, 'pattern')
+                error('Pattern rate can only be set in pattern mode; switch the LightCrafter device to pattern mode first');
+            end
             if ~obj.patternRatesToAttributes.isKey(rate)
                 error([num2str(rate) ' is not an available pattern rate']);
             end
@@ -317,7 +320,13 @@ classdef LightCrafterDevice < symphonyui.core.Device
         end
         
         function r = getPatternRate(obj)
-            r = obj.lightCrafter.currentPatternRate();
+            % In video mode the projector rejects pattern-attribute
+            % queries; frames are presented at the monitor refresh rate.
+            if strcmp(obj.mode, 'pattern')
+                r = obj.lightCrafter.currentPatternRate();
+            else
+                r = obj.getMonitorRefreshRate();
+            end
         end
         
         function p = um2pix(obj, um)
