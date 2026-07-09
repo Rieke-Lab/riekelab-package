@@ -10,6 +10,8 @@ classdef FilterWheelDevice < symphonyui.core.Device
         filterWheel
         ndfValues % = [0 0.5 1.0 2.0 3.0 4.0];
         isOpen
+        useLegacySerial % serialport() requires R2019b+; older releases use serial()
+        comPort
     end
     
     methods
@@ -40,12 +42,21 @@ classdef FilterWheelDevice < symphonyui.core.Device
         end
         
         function connect(obj, comPort)
+            obj.comPort = comPort;
+            obj.useLegacySerial = verLessThan('matlab', '9.7'); % serialport added in R2019b (9.7)
             try
-                obj.filterWheel = serialport(comPort, 115200, ...
-                    'DataBits', 8, 'StopBits', 1, 'Timeout', 5);
-                configureTerminator(obj.filterWheel, 'CR');
+                if obj.useLegacySerial
+                    obj.filterWheel = serial(comPort, 'BaudRate', 115200, ...
+                        'DataBits', 8, 'StopBits', 1, 'Terminator', 'CR'); %#ok<SERIAL>
+                    fopen(obj.filterWheel);
+                else
+                    obj.filterWheel = serialport(comPort, 115200, ...
+                        'DataBits', 8, 'StopBits', 1, 'Timeout', 5);
+                    configureTerminator(obj.filterWheel, 'CR');
+                end
                 obj.isOpen = true;
             catch
+                obj.filterWheel = [];
                 obj.isOpen = false;
             end
         end
@@ -53,6 +64,9 @@ classdef FilterWheelDevice < symphonyui.core.Device
         function close(obj)
             if obj.isOpen
                 try
+                    if obj.useLegacySerial
+                        fclose(obj.filterWheel);
+                    end
                     delete(obj.filterWheel);
                 catch
                 end
@@ -61,7 +75,7 @@ classdef FilterWheelDevice < symphonyui.core.Device
         end
 
         function moveWheel(obj, position)
-            writeline(obj.filterWheel, ['pos=' num2str(position)]);
+            obj.send(['pos=' num2str(position)]);
             obj.wheelPosition = position;
         end
         
@@ -84,9 +98,28 @@ classdef FilterWheelDevice < symphonyui.core.Device
 
         
         function position = getCurrentPosition(obj)
-            if obj.isOpen
-                writeline(obj.filterWheel, 'pos=?');
-                position = readline(obj.filterWheel);
+            position = [];
+            if ~obj.isOpen
+                return;
+            end
+            obj.send('pos=?');
+            if obj.useLegacySerial
+                position = fscanf(obj.filterWheel);
+            else
+                position = char(readline(obj.filterWheel));
+            end
+        end
+    end
+
+    methods (Access = private)
+        function send(obj, command)
+            if ~obj.isOpen || isempty(obj.filterWheel)
+                error(['FilterWheel is not connected (could not open ' obj.comPort '); check the COM port in the rig description']);
+            end
+            if obj.useLegacySerial
+                fprintf(obj.filterWheel, [command '\n']);
+            else
+                writeline(obj.filterWheel, command);
             end
         end
     end
