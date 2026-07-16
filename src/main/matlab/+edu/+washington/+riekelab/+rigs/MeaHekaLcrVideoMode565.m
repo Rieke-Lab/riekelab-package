@@ -113,20 +113,21 @@ classdef MeaHekaLcrVideoMode565 < symphonyui.core.descriptions.RigDescription
 %             paths = lightCrafter.getResource('fluxFactorPaths');
 %             spectrum = lightCrafter.getResource('spectrum');
 %             qCatch = manookinlab.util.computePhotoreceptorCatch(paths, spectrum, 'species', 'macaque');
-%             
-%             lightCrafter.addResource('quantalCatch', qCatch);
-            
+%           
+            % Automatic computations are wrong, manual values accurate as
+            % of 07/15/2026
             qCatch = [
-               0.369447881495107   0.070536240481100   0.000586393065682   0.010382577485673
-               1.496654228091196   0.973409075254781   0.002181047932008   0.707710863014727
-               0.154309237808581   0.142868712143260   0.766370210190195   0.801848855401907]*1e5;
+               0.667797   0.177105   0.094287   0.037010
+               2.101088   1.728358   1.893498   0.076504
+               0.126773   0.123361   0.702491   1.079157]*1e6;
                 
 %             qCatch = zeros(3,4);
-%             names = {'red','green_565','blue'};
+%             names = {'red','green','blue'};
 %             for jj = 1 : length(names)
 %                 q = myspect(names{jj});
 %                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
 %             end
+
             lightCrafter.addResource('quantalCatch', qCatch);
             obj.addDevice(lightCrafter);
             

@@ -103,16 +103,16 @@ classdef MeaHekaLcrVideoMode505 < symphonyui.core.descriptions.RigDescription
 %             paths = lightCrafter.getResource('fluxFactorPaths');
 %             spectrum = lightCrafter.getResource('spectrum');
 %             qCatch = manookinlab.util.computePhotoreceptorCatch(paths, spectrum, 'species', 'macaque');
-%             
-%             lightCrafter.addResource('quantalCatch', qCatch);
-            
+%           
+            % Automatic computations are wrong, manual values accurate as
+            % of 07/15/2026
             qCatch = [
-               0.369447881495107   0.070536240481100   0.000586393065682   0.010382577485673
-               1.496654228091196   0.973409075254781   0.002181047932008   0.707710863014727
-               0.154309237808581   0.142868712143260   0.766370210190195   0.801848855401907]*1e5;
+               0.666780   0.170231   0.154674   0.040713
+               0.613065   1.090966   3.756366   0.218828
+               0.133770   0.135230   0.835837   1.310632]*1e6;
                 
 %             qCatch = zeros(3,4);
-%             names = {'red','green_565','blue'};
+%             names = {'red','green','blue'};
 %             for jj = 1 : length(names)
 %                 q = myspect(names{jj});
 %                 qCatch(jj,:) = manookinlab.util.computeQuantalCatch(q(:, 1), q(:, 2));
@@ -167,6 +167,9 @@ classdef MeaHekaLcrVideoMode505 < symphonyui.core.descriptions.RigDescription
 %             mea = manookinlab.devices.MEADevice('host', '192.168.0.100');
             mea = manookinlab.devices.MEADevice(9001);
             obj.addDevice(mea);
+            
+%             optometer = UnitConvertingDevice('Optometer', 'V').bindStream(daq.getStream('ai0'));
+%             obj.addDevice(optometer);  
         end
     end
 end
