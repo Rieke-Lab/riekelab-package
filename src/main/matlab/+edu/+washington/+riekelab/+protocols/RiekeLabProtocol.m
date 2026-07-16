@@ -9,8 +9,16 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
     methods
         function prepareRun(obj)
             prepareRun@symphonyui.core.Protocol(obj);
-            
+
             obj.startedRun = false;
+
+            % Determine MEA status up front. Subclasses query
+            % obj.isMeaRig inside their own prepareRun (before the
+            % first prepareEpoch runs), so it must be a valid logical
+            % here rather than [] — otherwise `if ~obj.isMeaRig`
+            % evaluates as false on the first run and figure setup is
+            % silently skipped until a rerun.
+            obj.isMeaRig = ~isempty(obj.rig.getDevices('MEA'));
         end
         
         function prepareEpoch(obj, epoch)
