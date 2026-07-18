@@ -115,11 +115,12 @@ classdef MeaHekaLcrVideoMode565 < symphonyui.core.descriptions.RigDescription
 %             qCatch = manookinlab.util.computePhotoreceptorCatch(paths, spectrum, 'species', 'macaque');
 %           
             % Automatic computations are wrong, manual values accurate as
-            % of 07/15/2026
+            % of 07/17/2026. Column order is L, M, S, Rod. Row order is R,
+            % G, B.
             qCatch = [
-               0.667797   0.177105   0.094287   0.037010
-               2.101088   1.728358   1.893498   0.076504
-               0.126773   0.123361   0.702491   1.079157]*1e6;
+               0.701849   0.186136   0.038897   0.099095
+               2.202611   1.811872   0.080200   1.984991
+               0.131032   0.127504   1.115407   0.726089]*1e6;
                 
 %             qCatch = zeros(3,4);
 %             names = {'red','green','blue'};
