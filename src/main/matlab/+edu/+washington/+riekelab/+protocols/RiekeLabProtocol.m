@@ -24,6 +24,9 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
         function prepareEpoch(obj, epoch)
             prepareEpoch@symphonyui.core.Protocol(obj, epoch);
             
+            % Save the protocol source code to the EpochBlock.
+            obj.saveProtocolSource();
+            
             controllers = obj.rig.getDevices('Temperature Controller');
             if ~isempty(controllers)
                 epoch.addResponse(controllers{1});
@@ -156,6 +159,39 @@ classdef (Abstract) RiekeLabProtocol < symphonyui.core.Protocol
             end
         end
         
+    end
+    
+    methods (Access = private)
+        function saveProtocolSource(obj)
+            % Snapshot the running protocol's .m source into the current epoch
+            % block as a raw UTF-8 resource ('public.plain-text' / 'protocolSource').
+            % Read back in MATLAB via:
+            %   native2unicode(uint8(block.cobj.GetResource('protocolSource').Data), 'UTF-8')
+            % (block.getResource() will NOT work -- it assumes MATLAB byte-stream data.)
+            if isempty(obj.persistor) || isempty(obj.persistor.currentEpochBlock)
+                return
+            end
+            block = obj.persistor.currentEpochBlock;
+            try
+                if any(strcmp(block.getResourceNames(), 'protocolSource'))
+                    return  % already saved for this block (covers pause/resume)
+                end
+                srcPath = which(class(obj));
+                if isempty(srcPath)
+                    error('Could not resolve source file for %s', class(obj));
+                end
+                fid = fopen(srcPath, 'r');
+                if fid == -1
+                    error('Could not open %s', srcPath);
+                end
+                closer = onCleanup(@() fclose(fid));
+                bytes = fread(fid, Inf, '*uint8')';
+                block.cobj.AddResource('public.plain-text', 'protocolSource', bytes);
+            catch ME
+                warning('riekeLab:protocolSnapshot', ...
+                    'Could not save protocol source.\n Error: %s', ME.message);
+            end
+        end
     end
     
 end
